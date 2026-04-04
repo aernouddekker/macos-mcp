@@ -15,29 +15,15 @@ npm start              # Run the MCP server (stdio transport)
 
 There are no tests yet. The server communicates over stdio — it's not an HTTP server.
 
-## Configure in Claude Code
-
-Add to `~/.claude/settings.json` or project `.mcp.json`:
-```json
-{
-  "mcpServers": {
-    "mailappmcp": {
-      "command": "node",
-      "args": ["/Users/aernouddekker/Development/mailappmcp/dist/index.js"]
-    }
-  }
-}
-```
-
 ## Architecture
 
 **Transport:** Stdio via `StdioServerTransport`. No HTTP, no SSE.
 
-**Entry point:** `src/index.ts` — creates `McpServer`, registers all six tools with Zod schemas, connects transport.
+**Entry point:** `src/index.ts` — creates `McpServer`, registers all eight tools with Zod schemas, connects transport.
 
 **AppleScript layer:** `src/applescript.ts` — `runAppleScript()` executes scripts via `child_process.execFile("osascript", ...)`. Uses delimiter-based parsing (`|||` between fields, `~~~` between records) to convert AppleScript string output into structured JSON. `escapeForAppleScript()` handles quote/backslash escaping for user input interpolated into scripts.
 
-**Six tools in `src/tools/`:**
+**Eight tools in `src/tools/`:**
 
 | Tool | File | What it does |
 |------|------|-------------|
@@ -45,10 +31,12 @@ Add to `~/.claude/settings.json` or project `.mcp.json`:
 | `search-messages` | `searchMessages.ts` | Searches messages in a mailbox by subject/sender |
 | `read-message` | `readMessage.ts` | Reads full email content by RFC Message-ID |
 | `compose-message` | `composeMessage.ts` | Creates a draft (opens compose window, does NOT send) |
-| `send-message` | `sendMessage.ts` | Creates and immediately sends an email |
+| `send-message` | `sendMessage.ts` | Creates and immediately sends an email (supports from/attachments) |
 | `reply-to-message` | `replyToMessage.ts` | Replies to an existing message (supports reply-all) |
+| `delete-messages` | `deleteMessages.ts` | Deletes messages by RFC Message-ID |
+| `mark-as-read` | `markAsRead.ts` | Marks messages as read by RFC Message-ID |
 
-**Message addressing:** Messages are identified by the triple (account, mailbox, messageId) where messageId is the RFC Message-ID header. `search-messages` returns these; `read-message` and `reply-to-message` consume them.
+**Message addressing:** Messages are identified by the triple (account, mailbox, messageId) where messageId is the RFC Message-ID header. `search-messages` returns these; `read-message`, `reply-to-message`, `delete-messages`, and `mark-as-read` consume them.
 
 **Safety:** `compose-message` creates a visible draft without sending. `send-message` is a separate explicit action. `reply-to-message` has a `sendImmediately` flag (defaults to false).
 
