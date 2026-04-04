@@ -10,9 +10,13 @@ export async function searchMessages(
   const acct = escapeForAppleScript(account);
   const mbox = escapeForAppleScript(mailbox);
 
+  const filter = q
+    ? ` whose subject contains "${q}" or sender contains "${q}"`
+    : "";
+
   const script = `
 tell application "Mail"
-  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose subject contains "${q}" or sender contains "${q}")
+  set msgs to (messages of mailbox "${mbox}" of account "${acct}"${filter})
   set output to ""
   set maxCount to ${limit}
   set i to 0

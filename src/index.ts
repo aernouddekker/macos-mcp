@@ -9,6 +9,8 @@ import { readMessage } from "./tools/readMessage.js";
 import { composeMessage } from "./tools/composeMessage.js";
 import { sendMessage } from "./tools/sendMessage.js";
 import { replyToMessage } from "./tools/replyToMessage.js";
+import { deleteMessages } from "./tools/deleteMessages.js";
+import { markAsRead } from "./tools/markAsRead.js";
 
 const server = new McpServer({
   name: "mailappmcp",
@@ -80,9 +82,11 @@ server.tool(
     subject: z.string().describe("Email subject"),
     body: z.string().describe("Email body text"),
     cc: z.array(z.string()).optional().describe("CC email addresses"),
+    from: z.string().optional().describe("Sender email address (must be configured in Mail.app)"),
+    attachments: z.array(z.string()).optional().describe("Absolute file paths to attach"),
   },
-  async ({ to, subject, body, cc }) => {
-    const result = await sendMessage(to, subject, body, cc);
+  async ({ to, subject, body, cc, from, attachments }) => {
+    const result = await sendMessage(to, subject, body, cc, from, attachments);
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   },
 );
@@ -103,6 +107,34 @@ server.tool(
     if (!result) {
       return { content: [{ type: "text", text: "Original message not found." }] };
     }
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "delete-messages",
+  "Delete one or more email messages by their RFC Message-IDs",
+  {
+    account: z.string().describe("Mail account name"),
+    mailbox: z.string().describe("Mailbox name"),
+    messageIds: z.array(z.string()).describe("RFC Message-IDs of the emails to delete"),
+  },
+  async ({ account, mailbox, messageIds }) => {
+    const result = await deleteMessages(account, mailbox, messageIds);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "mark-as-read",
+  "Mark one or more email messages as read",
+  {
+    account: z.string().describe("Mail account name"),
+    mailbox: z.string().describe("Mailbox name"),
+    messageIds: z.array(z.string()).describe("RFC Message-IDs of the emails to mark as read"),
+  },
+  async ({ account, mailbox, messageIds }) => {
+    const result = await markAsRead(account, mailbox, messageIds);
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   },
 );
