@@ -1,6 +1,6 @@
 {
   "name": "@aernoud/contactsmcp",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "MCP server for macOS Contacts.app — contact management via AppleScript",
   "mcpName": "io.github.aernouddekker/contactsmcp",
   "type": "module",
