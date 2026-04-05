@@ -1,4 +1,4 @@
-import { runAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../applescript.js";
+import { runAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "@mailappmcp/shared";
 
 export async function listMailboxes() {
   const script = `

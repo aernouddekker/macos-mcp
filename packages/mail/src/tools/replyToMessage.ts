@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../applescript.js";
+import { runAppleScript, escapeForAppleScript } from "@mailappmcp/shared";
 
 export async function replyToMessage(
   account: string,

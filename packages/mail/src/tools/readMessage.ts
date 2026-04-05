@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, FIELD_SEP } from "../applescript.js";
+import { runAppleScript, escapeForAppleScript, FIELD_SEP } from "@mailappmcp/shared";
 
 export async function readMessage(
   account: string,

@@ -1,6 +1,6 @@
-import { runAppleScript, escapeForAppleScript } from "../applescript.js";
+import { runAppleScript, escapeForAppleScript } from "@mailappmcp/shared";
 
-export async function deleteMessages(
+export async function markAsRead(
   account: string,
   mailbox: string,
   messageIds: string[],
@@ -8,22 +8,22 @@ export async function deleteMessages(
   const acct = escapeForAppleScript(account);
   const mbox = escapeForAppleScript(mailbox);
 
-  let deletedCount = 0;
+  let updatedCount = 0;
   for (const msgId of messageIds) {
     const id = escapeForAppleScript(msgId);
     const script = `
 tell application "Mail"
   set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${id}")
   if (count of msgs) > 0 then
-    delete item 1 of msgs
-    return "deleted"
+    set read status of item 1 of msgs to true
+    return "done"
   end if
   return "not_found"
 end tell`;
 
     const result = await runAppleScript(script);
-    if (result === "deleted") deletedCount++;
+    if (result === "done") updatedCount++;
   }
 
-  return { deletedCount, requestedCount: messageIds.length };
+  return { updatedCount, requestedCount: messageIds.length };
 }

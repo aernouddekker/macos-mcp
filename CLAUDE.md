@@ -4,45 +4,38 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-A macOS Mail.app MCP server — a Node.js/TypeScript server using `@modelcontextprotocol/sdk` that wraps AppleScript calls to Mail.app via `osascript`. Gives Claude Code and Cowork native email access. Runs locally, no auth needed, works with any account configured in Mail.app (iCloud, Gmail, etc.).
+A monorepo of macOS MCP servers that wrap AppleScript calls to native macOS apps via `osascript`. Gives Claude Code and Cowork native access to Mail, Numbers, and Contacts. Runs locally, no auth needed, works with any accounts configured in the respective apps.
 
 ## Build & Run
 
 ```bash
-npm run build          # Compile TypeScript → dist/
-npm start              # Run the MCP server (stdio transport)
+npm install               # Install all workspace dependencies
+npm run build             # Build all packages (shared → mail → numbers → contacts)
+npm run build --workspace=packages/mail      # Build a single package
 ```
 
-There are no tests yet. The server communicates over stdio — it's not an HTTP server.
+No tests yet. All servers communicate over stdio — they're not HTTP servers.
 
 ## Architecture
 
-**Transport:** Stdio via `StdioServerTransport`. No HTTP, no SSE.
+**Monorepo:** npm workspaces with four packages under `packages/`.
 
-**Entry point:** `src/index.ts` — creates `McpServer`, registers all eight tools with Zod schemas, connects transport.
+**Shared package (`@mailappmcp/shared`):** `packages/shared/src/applescript.ts` — `runAppleScript()` executes scripts via `child_process.execFile("osascript", ...)`. Uses delimiter-based parsing (`|||` between fields, `~~~` between records). `escapeForAppleScript()` handles quote/backslash escaping.
 
-**AppleScript layer:** `src/applescript.ts` — `runAppleScript()` executes scripts via `child_process.execFile("osascript", ...)`. Uses delimiter-based parsing (`|||` between fields, `~~~` between records) to convert AppleScript string output into structured JSON. `escapeForAppleScript()` handles quote/backslash escaping for user input interpolated into scripts.
+**Three MCP servers:**
 
-**Eight tools in `src/tools/`:**
+| Package | npm name | App | Tools |
+|---------|----------|-----|-------|
+| `packages/mail` | `mailappmcp` | Mail.app | 8 tools: list-mailboxes, search-messages, read-message, compose-message, send-message, reply-to-message, delete-messages, mark-as-read |
+| `packages/numbers` | `numbersmcp` | Numbers.app | 9 tools: list-spreadsheets, list-sheets, read-range, write-cell, write-range, add-row, read-table, get-formula, set-formula |
+| `packages/contacts` | `contactsmcp` | Contacts.app | 6 tools: search-contacts, read-contact, create-contact, update-contact, list-groups, add-to-group |
 
-| Tool | File | What it does |
-|------|------|-------------|
-| `list-mailboxes` | `listMailboxes.ts` | Lists all mailboxes across all accounts with unread counts |
-| `search-messages` | `searchMessages.ts` | Searches messages in a mailbox by subject/sender |
-| `read-message` | `readMessage.ts` | Reads full email content by RFC Message-ID |
-| `compose-message` | `composeMessage.ts` | Creates a draft (opens compose window, does NOT send) |
-| `send-message` | `sendMessage.ts` | Creates and immediately sends an email (supports from/attachments) |
-| `reply-to-message` | `replyToMessage.ts` | Replies to an existing message (supports reply-all) |
-| `delete-messages` | `deleteMessages.ts` | Deletes messages by RFC Message-ID |
-| `mark-as-read` | `markAsRead.ts` | Marks messages as read by RFC Message-ID |
-
-**Message addressing:** Messages are identified by the triple (account, mailbox, messageId) where messageId is the RFC Message-ID header. `search-messages` returns these; `read-message`, `reply-to-message`, `delete-messages`, and `mark-as-read` consume them.
-
-**Safety:** `compose-message` creates a visible draft without sending. `send-message` is a separate explicit action. `reply-to-message` has a `sendImmediately` flag (defaults to false).
+**Pattern:** Each server's `src/index.ts` creates an `McpServer`, registers tools with Zod schemas, connects via `StdioServerTransport`. Each tool file builds an AppleScript string using helpers from `@mailappmcp/shared`, executes it, and parses the result.
 
 ## Key Constraints
 
 - AppleScript string escaping is critical — all user input must go through `escapeForAppleScript()` before interpolation into scripts.
-- `osascript` has a 30s timeout and 10MB buffer limit (configured in `applescript.ts`).
-- `content contains` searches in AppleScript can be very slow on large mailboxes.
-- Mail.app must be running (or will be auto-launched by `tell application "Mail"`).
+- `osascript` has a 30s timeout and 10MB buffer limit (configured in shared `applescript.ts`).
+- Each macOS app must be running (or will be auto-launched by `tell application`).
+- Numbers tools require an open document. Contacts tools work against the system address book.
+- `compose-message` creates a visible draft without sending. `send-message` is a separate explicit action.
