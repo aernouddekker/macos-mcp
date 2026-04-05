@@ -1,7 +1,8 @@
 {
-  "name": "contactsmcp",
-  "version": "0.1.0",
+  "name": "@aernoud/contactsmcp",
+  "version": "0.1.1",
   "description": "MCP server for macOS Contacts.app — contact management via AppleScript",
+  "mcpName": "io.github.aernouddekker/contactsmcp",
   "type": "module",
   "bin": { "contactsmcp": "./dist/index.js" },
   "files": ["dist"],
