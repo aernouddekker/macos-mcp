@@ -1,6 +1,6 @@
 {
   "name": "mailappmcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "MCP server for macOS Mail.app — gives Claude native email access via AppleScript",
   "type": "module",
   "mcpName": "io.github.aernouddekker/mailappmcp",
