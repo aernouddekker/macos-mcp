@@ -9,6 +9,12 @@ import { createContact } from "./tools/createContact.js";
 import { updateContact } from "./tools/updateContact.js";
 import { listGroups } from "./tools/listGroups.js";
 import { addToGroup } from "./tools/addToGroup.js";
+import { removeFromGroup } from "./tools/removeFromGroup.js";
+import { deleteContact } from "./tools/deleteContact.js";
+import { createGroup } from "./tools/createGroup.js";
+import { deleteGroup } from "./tools/deleteGroup.js";
+import { renameGroup } from "./tools/renameGroup.js";
+import { listGroupMembers } from "./tools/listGroupMembers.js";
 
 const server = new McpServer({
   name: "contactsmcp",
@@ -102,6 +108,84 @@ server.tool(
       return { content: [{ type: "text", text: "Contact not found." }] };
     }
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "remove-from-group",
+  "Remove a contact from a group in macOS Contacts.app",
+  {
+    contactId: z.string().describe("Contact ID from Contacts.app"),
+    groupName: z.string().describe("Name of the group to remove the contact from"),
+  },
+  async ({ contactId, groupName }) => {
+    const result = await removeFromGroup(contactId, groupName);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "delete-contact",
+  "Delete a contact from macOS Contacts.app",
+  {
+    contactId: z.string().describe("Contact ID from Contacts.app"),
+  },
+  async ({ contactId }) => {
+    const result = await deleteContact(contactId);
+    if (!result) {
+      return { content: [{ type: "text", text: "Contact not found." }] };
+    }
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "create-group",
+  "Create a new contact group in macOS Contacts.app",
+  {
+    name: z.string().describe("Name for the new group"),
+  },
+  async ({ name }) => {
+    const result = await createGroup(name);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "delete-group",
+  "Delete a contact group from macOS Contacts.app",
+  {
+    groupName: z.string().describe("Name of the group to delete"),
+  },
+  async ({ groupName }) => {
+    const result = await deleteGroup(groupName);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "rename-group",
+  "Rename a contact group in macOS Contacts.app",
+  {
+    groupName: z.string().describe("Current name of the group"),
+    newName: z.string().describe("New name for the group"),
+  },
+  async ({ groupName, newName }) => {
+    const result = await renameGroup(groupName, newName);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "list-group-members",
+  "List all contacts in a group in macOS Contacts.app",
+  {
+    groupName: z.string().describe("Name of the group"),
+    limit: z.number().optional().default(100).describe("Max members to return"),
+  },
+  async ({ groupName, limit }) => {
+    const members = await listGroupMembers(groupName, limit);
+    return { content: [{ type: "text", text: JSON.stringify(members, null, 2) }] };
   },
 );
 

@@ -6,7 +6,7 @@ No API keys, no OAuth, no cloud services. Talks directly to macOS apps via Apple
 
 ## Servers
 
-### Mail (`mailappmcp`)
+### Mail (`mailappmcp`) — 13 tools
 
 Works with every email account configured in Mail.app — iCloud, Gmail, Outlook, Fastmail, you name it.
 
@@ -18,10 +18,15 @@ Works with every email account configured in Mail.app — iCloud, Gmail, Outlook
 | `compose-message` | Create a draft in Mail.app (does **not** send) |
 | `send-message` | Send an email immediately (supports `from` and attachments) |
 | `reply-to-message` | Reply or reply-all to a message |
+| `forward-message` | Forward a message to new recipients |
+| `move-messages` | Move messages between mailboxes |
 | `delete-messages` | Delete messages by Message-ID |
 | `mark-as-read` | Mark messages as read |
+| `flag-message` | Flag/unflag messages with color support |
+| `save-attachment` | Save email attachments to disk |
+| `check-for-new-mail` | Trigger a mail fetch for one or all accounts |
 
-### Numbers (`numbersmcp`)
+### Numbers (`numbersmcp`) — 24 tools
 
 Works with any open Numbers spreadsheet.
 
@@ -30,14 +35,29 @@ Works with any open Numbers spreadsheet.
 | `list-spreadsheets` | List all open Numbers documents |
 | `list-sheets` | List sheets and tables in a document |
 | `read-range` | Read cell values from a range (e.g. "A1:C10") |
+| `read-table` | Read an entire table as structured data |
 | `write-cell` | Write a value to a specific cell |
 | `write-range` | Write multiple values to a range |
-| `add-row` | Append a row to a table |
-| `read-table` | Read an entire table as structured data |
 | `get-formula` | Get the formula from a cell |
 | `set-formula` | Set a formula on a cell |
+| `add-row` | Append a row to a table |
+| `delete-row` | Delete a row from a table |
+| `add-column` | Add a column to a table |
+| `delete-column` | Delete a column from a table |
+| `add-sheet` | Add a new sheet to a document |
+| `delete-sheet` | Delete a sheet from a document |
+| `rename-sheet` | Rename a sheet |
+| `add-table` | Add a new table to a sheet |
+| `delete-table` | Delete a table from a sheet |
+| `rename-table` | Rename a table |
+| `sort-table` | Sort a table by a column |
+| `merge-cells` | Merge a range of cells |
+| `unmerge-cells` | Unmerge previously merged cells |
+| `set-cell-format` | Set cell format (number, currency, date, percentage, etc.) |
+| `set-cell-style` | Set font, color, background, bold, italic, alignment |
+| `export-document` | Export to PDF, Excel, or CSV |
 
-### Contacts (`contactsmcp`)
+### Contacts (`contactsmcp`) — 12 tools
 
 Works with the system address book — all accounts synced to Contacts.app.
 
@@ -47,8 +67,14 @@ Works with the system address book — all accounts synced to Contacts.app.
 | `read-contact` | Get full contact details |
 | `create-contact` | Create a new contact |
 | `update-contact` | Update contact fields |
+| `delete-contact` | Delete a contact |
 | `list-groups` | List all contact groups |
+| `create-group` | Create a new contact group |
+| `rename-group` | Rename a contact group |
+| `delete-group` | Delete a contact group |
 | `add-to-group` | Add a contact to a group |
+| `remove-from-group` | Remove a contact from a group |
+| `list-group-members` | List all contacts in a group |
 
 ## Requirements
 
@@ -130,7 +156,7 @@ Each server runs locally over stdio. Tools build AppleScript strings, execute th
 
 - `compose-message` opens a visible draft — you review before sending
 - `send-message` is a separate, explicit action
-- `reply-to-message` defaults to draft mode (`sendImmediately: false`)
+- `reply-to-message` and `forward-message` default to draft mode (`sendImmediately: false`)
 - `delete-messages` moves to Trash (standard Mail.app behavior)
 
 ## Known limitations
