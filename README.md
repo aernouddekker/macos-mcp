@@ -1,10 +1,14 @@
-# mailappmcp
+# macos-mcp
 
-MCP server for macOS Mail.app — gives [Claude Code](https://claude.ai/code), [Claude Desktop](https://claude.ai/download), and any MCP client native email access.
+MCP servers for macOS native apps — gives [Claude Code](https://claude.ai/code), [Claude Desktop](https://claude.ai/download), and any MCP client native access to Mail, Numbers, and Contacts.
 
-No API keys, no OAuth, no cloud services. Talks directly to Mail.app via AppleScript. Works with every account you have configured — iCloud, Gmail, Outlook, Fastmail, you name it.
+No API keys, no OAuth, no cloud services. Talks directly to macOS apps via AppleScript. Runs locally on your Mac.
 
-## Tools
+## Servers
+
+### Mail (`mailappmcp`)
+
+Works with every email account configured in Mail.app — iCloud, Gmail, Outlook, Fastmail, you name it.
 
 | Tool | Description |
 |------|-------------|
@@ -17,25 +21,55 @@ No API keys, no OAuth, no cloud services. Talks directly to Mail.app via AppleSc
 | `delete-messages` | Delete messages by Message-ID |
 | `mark-as-read` | Mark messages as read |
 
+### Numbers (`numbersmcp`)
+
+Works with any open Numbers spreadsheet.
+
+| Tool | Description |
+|------|-------------|
+| `list-spreadsheets` | List all open Numbers documents |
+| `list-sheets` | List sheets and tables in a document |
+| `read-range` | Read cell values from a range (e.g. "A1:C10") |
+| `write-cell` | Write a value to a specific cell |
+| `write-range` | Write multiple values to a range |
+| `add-row` | Append a row to a table |
+| `read-table` | Read an entire table as structured data |
+| `get-formula` | Get the formula from a cell |
+| `set-formula` | Set a formula on a cell |
+
+### Contacts (`contactsmcp`)
+
+Works with the system address book — all accounts synced to Contacts.app.
+
+| Tool | Description |
+|------|-------------|
+| `search-contacts` | Search contacts by name, email, or phone |
+| `read-contact` | Get full contact details |
+| `create-contact` | Create a new contact |
+| `update-contact` | Update contact fields |
+| `list-groups` | List all contact groups |
+| `add-to-group` | Add a contact to a group |
+
 ## Requirements
 
 - macOS (uses AppleScript — won't work on Linux/Windows)
 - Node.js 18+
-- Mail.app configured with at least one account
 
 ## Install
 
 ### From npm
 
 ```bash
-npm install -g mailappmcp
+npm install -g mailappmcp    # Mail server
+npm install -g numbersmcp    # Numbers server
+npm install -g contactsmcp   # Contacts server
 ```
 
 ### From source
 
 ```bash
-git clone https://github.com/aernouddekker/mailappmcp.git
-cd mailappmcp
+git clone https://github.com/aernouddekker/macos-mcp.git
+cd macos-mcp
 npm install
 npm run build
 ```
@@ -52,19 +86,14 @@ Add to `~/.claude/settings.json` or your project's `.mcp.json`:
     "mailappmcp": {
       "command": "npx",
       "args": ["-y", "mailappmcp"]
-    }
-  }
-}
-```
-
-Or if installed from source:
-
-```json
-{
-  "mcpServers": {
-    "mailappmcp": {
-      "command": "node",
-      "args": ["/path/to/mailappmcp/dist/index.js"]
+    },
+    "numbersmcp": {
+      "command": "npx",
+      "args": ["-y", "numbersmcp"]
+    },
+    "contactsmcp": {
+      "command": "npx",
+      "args": ["-y", "contactsmcp"]
     }
   }
 }
@@ -80,6 +109,14 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
     "mailappmcp": {
       "command": "npx",
       "args": ["-y", "mailappmcp"]
+    },
+    "numbersmcp": {
+      "command": "npx",
+      "args": ["-y", "numbersmcp"]
+    },
+    "contactsmcp": {
+      "command": "npx",
+      "args": ["-y", "contactsmcp"]
     }
   }
 }
@@ -87,9 +124,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ## How it works
 
-The server runs locally over stdio. Each tool builds an AppleScript, executes it via `osascript`, and parses the structured output back into JSON for the MCP response.
-
-Messages are addressed by the triple **(account, mailbox, messageId)** where `messageId` is the RFC Message-ID header. The `search-messages` tool returns these identifiers; `read-message`, `reply-to-message`, `delete-messages`, and `mark-as-read` consume them.
+Each server runs locally over stdio. Tools build AppleScript strings, execute them via `osascript`, and parse the structured output back into JSON for the MCP response. A shared package (`@mailappmcp/shared`) provides the AppleScript runner, string escaping, and delimiter-based parsing.
 
 ### Safety
 
@@ -100,9 +135,10 @@ Messages are addressed by the triple **(account, mailbox, messageId)** where `me
 
 ## Known limitations
 
-- `content contains` searches in AppleScript can be slow on large mailboxes — the server searches subject and sender by default
+- `content contains` searches in AppleScript can be slow on large mailboxes — Mail server searches subject and sender by default
 - `osascript` has a 30-second timeout per call
-- Mail.app must be running (or will be auto-launched)
+- Apps must be running (or will be auto-launched by AppleScript)
+- Numbers tools require an open document
 
 ## License
 
