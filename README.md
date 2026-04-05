@@ -6,44 +6,56 @@ No API keys, no OAuth, no cloud services. Talks directly to macOS apps via Apple
 
 ## Servers
 
-### Mail (`mailappmcp`) — 13 tools
+### Mail (`mailappmcp`) — 21 tools
 
 Works with every email account configured in Mail.app — iCloud, Gmail, Outlook, Fastmail, you name it.
 
 | Tool | Description |
 |------|-------------|
 | `list-mailboxes` | List all mailboxes across all accounts with unread counts |
+| `list-accounts` | List configured mail accounts with email addresses and type |
+| `list-signatures` | List available email signatures |
 | `search-messages` | Search messages by subject or sender (empty query lists all) |
 | `read-message` | Read the full content of a specific email |
+| `get-message-source` | Get raw RFC822 source of a message |
+| `list-attachments` | List attachments on a message with name, MIME type, size |
+| `save-attachment` | Save email attachments to disk |
 | `compose-message` | Create a draft in Mail.app (does **not** send) |
 | `send-message` | Send an email immediately (supports `from` and attachments) |
 | `reply-to-message` | Reply or reply-all to a message |
 | `forward-message` | Forward a message to new recipients |
+| `redirect-message` | Redirect a message (preserves original sender) |
 | `move-messages` | Move messages between mailboxes |
 | `delete-messages` | Delete messages by Message-ID |
 | `mark-as-read` | Mark messages as read |
+| `mark-as-junk` | Mark/unmark messages as junk |
 | `flag-message` | Flag/unflag messages with color support |
-| `save-attachment` | Save email attachments to disk |
+| `set-message-color` | Set background color of messages in the message list |
 | `check-for-new-mail` | Trigger a mail fetch for one or all accounts |
+| `extract-email-address` | Parse "John Doe \<jdoe@example.com\>" into name and address |
 
-### Numbers (`numbersmcp`) — 24 tools
+### Numbers (`numbersmcp`) — 29 tools
 
 Works with any open Numbers spreadsheet.
 
 | Tool | Description |
 |------|-------------|
 | `list-spreadsheets` | List all open Numbers documents |
+| `create-document` | Create a new Numbers document |
 | `list-sheets` | List sheets and tables in a document |
+| `get-active-sheet` | Get the currently active sheet |
 | `read-range` | Read cell values from a range (e.g. "A1:C10") |
 | `read-table` | Read an entire table as structured data |
 | `write-cell` | Write a value to a specific cell |
 | `write-range` | Write multiple values to a range |
+| `clear-range` | Clear contents and formatting of a cell range |
 | `get-formula` | Get the formula from a cell |
 | `set-formula` | Set a formula on a cell |
 | `add-row` | Append a row to a table |
 | `delete-row` | Delete a row from a table |
 | `add-column` | Add a column to a table |
 | `delete-column` | Delete a column from a table |
+| `resize-row-column` | Set row height or column width |
 | `add-sheet` | Add a new sheet to a document |
 | `delete-sheet` | Delete a sheet from a document |
 | `rename-sheet` | Rename a sheet |
@@ -51,20 +63,24 @@ Works with any open Numbers spreadsheet.
 | `delete-table` | Delete a table from a sheet |
 | `rename-table` | Rename a table |
 | `sort-table` | Sort a table by a column |
+| `transpose-table` | Swap rows and columns of a table |
 | `merge-cells` | Merge a range of cells |
 | `unmerge-cells` | Unmerge previously merged cells |
 | `set-cell-format` | Set cell format (number, currency, date, percentage, etc.) |
 | `set-cell-style` | Set font, color, background, bold, italic, alignment |
 | `export-document` | Export to PDF, Excel, or CSV |
 
-### Contacts (`contactsmcp`) — 12 tools
+### Contacts (`contactsmcp`) — 15 tools
 
 Works with the system address book — all accounts synced to Contacts.app.
 
 | Tool | Description |
 |------|-------------|
 | `search-contacts` | Search contacts by name, email, or phone |
+| `search-by-modification-date` | Find contacts modified after a given date |
 | `read-contact` | Get full contact details |
+| `get-my-card` | Get the user's own contact card |
+| `get-vcard` | Export a contact as vCard 3.0 text |
 | `create-contact` | Create a new contact |
 | `update-contact` | Update contact fields |
 | `delete-contact` | Delete a contact |

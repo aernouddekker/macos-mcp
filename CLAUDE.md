@@ -26,9 +26,9 @@ No tests yet. All servers communicate over stdio — they're not HTTP servers.
 
 | Package | npm name | App | Tools |
 |---------|----------|-----|-------|
-| `packages/mail` | `mailappmcp` | Mail.app | 13 tools: list-mailboxes, search-messages, read-message, compose-message, send-message, reply-to-message, delete-messages, mark-as-read, move-messages, forward-message, save-attachment, flag-message, check-for-new-mail |
-| `packages/numbers` | `numbersmcp` | Numbers.app | 24 tools: list-spreadsheets, list-sheets, read-range, write-cell, write-range, add-row, read-table, get-formula, set-formula, add-column, delete-column, delete-row, add-sheet, delete-sheet, rename-sheet, add-table, delete-table, rename-table, sort-table, merge-cells, unmerge-cells, set-cell-format, set-cell-style, export-document |
-| `packages/contacts` | `contactsmcp` | Contacts.app | 12 tools: search-contacts, read-contact, create-contact, update-contact, list-groups, add-to-group, remove-from-group, delete-contact, create-group, delete-group, rename-group, list-group-members |
+| `packages/mail` | `mailappmcp` | Mail.app | 21 tools |
+| `packages/numbers` | `numbersmcp` | Numbers.app | 29 tools |
+| `packages/contacts` | `contactsmcp` | Contacts.app | 15 tools |
 
 **Pattern:** Each server's `src/index.ts` creates an `McpServer`, registers tools with Zod schemas, connects via `StdioServerTransport`. Each tool file builds an AppleScript string using helpers from `@mailappmcp/shared`, executes it, and parses the result.
 

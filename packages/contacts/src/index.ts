@@ -15,6 +15,9 @@ import { createGroup } from "./tools/createGroup.js";
 import { deleteGroup } from "./tools/deleteGroup.js";
 import { renameGroup } from "./tools/renameGroup.js";
 import { listGroupMembers } from "./tools/listGroupMembers.js";
+import { getMyCard } from "./tools/getMyCard.js";
+import { getVcard } from "./tools/getVcard.js";
+import { searchByModificationDate } from "./tools/searchByModificationDate.js";
 
 const server = new McpServer({
   name: "contactsmcp",
@@ -186,6 +189,44 @@ server.tool(
   async ({ groupName, limit }) => {
     const members = await listGroupMembers(groupName, limit);
     return { content: [{ type: "text", text: JSON.stringify(members, null, 2) }] };
+  },
+);
+
+server.tool(
+  "get-my-card",
+  "Get the user's own contact card from macOS Contacts.app",
+  {},
+  async () => {
+    const card = await getMyCard();
+    return { content: [{ type: "text", text: JSON.stringify(card, null, 2) }] };
+  },
+);
+
+server.tool(
+  "get-vcard",
+  "Get the vCard 3.0 text for a contact by their Contacts.app ID",
+  {
+    contactId: z.string().describe("Contact ID from Contacts.app (from search results)"),
+  },
+  async ({ contactId }) => {
+    const result = await getVcard(contactId);
+    if (!result) {
+      return { content: [{ type: "text", text: "Contact not found." }] };
+    }
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "search-by-modification-date",
+  "Find contacts modified after a given date in macOS Contacts.app",
+  {
+    since: z.string().describe("Date string, e.g. 'January 1, 2026' or '2026-01-01'"),
+    limit: z.number().optional().default(50).describe("Max results to return"),
+  },
+  async ({ since, limit }) => {
+    const contacts = await searchByModificationDate(since, limit);
+    return { content: [{ type: "text", text: JSON.stringify(contacts, null, 2) }] };
   },
 );
 

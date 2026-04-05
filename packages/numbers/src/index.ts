@@ -27,6 +27,11 @@ import { mergeCells } from "./tools/mergeCells.js";
 import { unmergeCells } from "./tools/unmergeCells.js";
 import { renameTable } from "./tools/renameTable.js";
 import { setCellStyle } from "./tools/setCellStyle.js";
+import { clearRange } from "./tools/clearRange.js";
+import { transposeTable } from "./tools/transposeTable.js";
+import { createDocument } from "./tools/createDocument.js";
+import { getActiveSheet } from "./tools/getActiveSheet.js";
+import { resizeRowColumn } from "./tools/resizeRowColumn.js";
 
 const server = new McpServer({
   name: "numbersmcp",
@@ -385,6 +390,77 @@ server.tool(
   },
   async ({ document, cell, sheet, table, fontName, fontSize, textColor, backgroundColor, bold, italic, alignment }) => {
     const result = await setCellStyle(document, cell, sheet, table, fontName, fontSize, textColor, backgroundColor, bold, italic, alignment);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "clear-range",
+  "Clear all values in a range of cells in a Numbers table",
+  {
+    document: z.string().describe("Name of the open Numbers document"),
+    range: z.string().describe("Cell range to clear in A1 notation, e.g. 'A1:C10'"),
+    sheet: z.string().optional().describe("Sheet name (defaults to first sheet)"),
+    table: z.string().optional().describe("Table name (defaults to first table)"),
+  },
+  async ({ document, range, sheet, table }) => {
+    const result = await clearRange(document, range, sheet, table);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "transpose-table",
+  "Transpose rows and columns of a Numbers table",
+  {
+    document: z.string().describe("Name of the open Numbers document"),
+    sheet: z.string().optional().describe("Sheet name (defaults to first sheet)"),
+    table: z.string().optional().describe("Table name (defaults to first table)"),
+  },
+  async ({ document, sheet, table }) => {
+    const result = await transposeTable(document, sheet, table);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "create-document",
+  "Create a new Numbers document, optionally saving it with a given name",
+  {
+    name: z.string().optional().describe("Name for the new document (without extension). If provided, the document is saved to ~/Documents/<name>.numbers"),
+  },
+  async ({ name }) => {
+    const result = await createDocument(name);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "get-active-sheet",
+  "Get the name of the currently active sheet in a Numbers document",
+  {
+    document: z.string().describe("Name of the open Numbers document"),
+  },
+  async ({ document }) => {
+    const result = await getActiveSheet(document);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "resize-row-column",
+  "Resize the height of a row or the width of a column in a Numbers table. At least one of row (with height) or column (with width) must be provided.",
+  {
+    document: z.string().describe("Name of the open Numbers document"),
+    sheet: z.string().optional().describe("Sheet name (defaults to first sheet)"),
+    table: z.string().optional().describe("Table name (defaults to first table)"),
+    row: z.number().int().positive().optional().describe("Row number to resize (1-based)"),
+    column: z.string().optional().describe("Column letter to resize, e.g. 'B'"),
+    height: z.number().positive().optional().describe("New row height in points"),
+    width: z.number().positive().optional().describe("New column width in points"),
+  },
+  async ({ document, sheet, table, row, column, height, width }) => {
+    const result = await resizeRowColumn(document, sheet, table, row, column, height, width);
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   },
 );

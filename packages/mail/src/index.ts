@@ -16,6 +16,14 @@ import { forwardMessage } from "./tools/forwardMessage.js";
 import { saveAttachment } from "./tools/saveAttachment.js";
 import { flagMessage } from "./tools/flagMessage.js";
 import { checkForNewMail } from "./tools/checkForNewMail.js";
+import { redirectMessage } from "./tools/redirectMessage.js";
+import { listAccounts } from "./tools/listAccounts.js";
+import { listSignatures } from "./tools/listSignatures.js";
+import { markAsJunk } from "./tools/markAsJunk.js";
+import { getMessageSource } from "./tools/getMessageSource.js";
+import { listAttachments } from "./tools/listAttachments.js";
+import { setMessageColor } from "./tools/setMessageColor.js";
+import { extractEmailAddress } from "./tools/extractEmailAddress.js";
 
 const server = new McpServer({
   name: "mailappmcp",
@@ -222,6 +230,121 @@ server.tool(
   },
   async ({ account }) => {
     const result = await checkForNewMail(account);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "redirect-message",
+  "Redirect an email message to new recipients (preserves original sender, unlike forward)",
+  {
+    account: z.string().describe("Mail account name"),
+    mailbox: z.string().describe("Mailbox name"),
+    messageId: z.string().describe("RFC Message-ID of the email to redirect"),
+    to: z.array(z.string()).describe("Recipient email addresses"),
+    sendImmediately: z.boolean().optional().default(false).describe("Send immediately instead of opening as draft"),
+  },
+  async ({ account, mailbox, messageId, to, sendImmediately }) => {
+    const result = await redirectMessage(account, mailbox, messageId, to, sendImmediately);
+    if (!result) {
+      return { content: [{ type: "text", text: "Message not found." }] };
+    }
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "list-accounts",
+  "List all Mail.app accounts with their email addresses, type, and enabled status",
+  {},
+  async () => {
+    const accounts = await listAccounts();
+    return { content: [{ type: "text", text: JSON.stringify(accounts, null, 2) }] };
+  },
+);
+
+server.tool(
+  "list-signatures",
+  "List all email signatures configured in Mail.app",
+  {},
+  async () => {
+    const signatures = await listSignatures();
+    return { content: [{ type: "text", text: JSON.stringify(signatures, null, 2) }] };
+  },
+);
+
+server.tool(
+  "mark-as-junk",
+  "Mark or unmark one or more email messages as junk/spam",
+  {
+    account: z.string().describe("Mail account name"),
+    mailbox: z.string().describe("Mailbox name"),
+    messageIds: z.array(z.string()).describe("RFC Message-IDs of the emails to mark"),
+    isJunk: z.boolean().optional().default(true).describe("Mark as junk (true) or not junk (false)"),
+  },
+  async ({ account, mailbox, messageIds, isJunk }) => {
+    const result = await markAsJunk(account, mailbox, messageIds, isJunk);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "get-message-source",
+  "Get the raw RFC822 source of an email message",
+  {
+    account: z.string().describe("Mail account name"),
+    mailbox: z.string().describe("Mailbox name"),
+    messageId: z.string().describe("RFC Message-ID of the email"),
+  },
+  async ({ account, mailbox, messageId }) => {
+    const result = await getMessageSource(account, mailbox, messageId);
+    if (!result) {
+      return { content: [{ type: "text", text: "Message not found." }] };
+    }
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "list-attachments",
+  "List all attachments of an email message with metadata",
+  {
+    account: z.string().describe("Mail account name"),
+    mailbox: z.string().describe("Mailbox name"),
+    messageId: z.string().describe("RFC Message-ID of the email"),
+  },
+  async ({ account, mailbox, messageId }) => {
+    const result = await listAttachments(account, mailbox, messageId);
+    if (!result) {
+      return { content: [{ type: "text", text: "Message not found." }] };
+    }
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "set-message-color",
+  "Set the background color highlight of one or more email messages in Mail.app",
+  {
+    account: z.string().describe("Mail account name"),
+    mailbox: z.string().describe("Mailbox name"),
+    messageIds: z.array(z.string()).describe("RFC Message-IDs of the emails to color"),
+    color: z.enum(["blue", "gray", "green", "orange", "purple", "red", "yellow", "none"]).describe("Background color to apply, or 'none' to clear"),
+  },
+  async ({ account, mailbox, messageIds, color }) => {
+    const result = await setMessageColor(account, mailbox, messageIds, color);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.tool(
+  "extract-email-address",
+  "Parse a formatted email string (e.g. 'John Doe <jdoe@example.com>') into name and address",
+  {
+    input: z.string().describe("Formatted email address string to parse"),
+  },
+  async ({ input }) => {
+    const result = await extractEmailAddress(input);
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   },
 );
