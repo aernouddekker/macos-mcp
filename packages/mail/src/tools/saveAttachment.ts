@@ -1,4 +1,5 @@
 import { runAppleScript, escapeForAppleScript } from "@mailappmcp/shared";
+import fs from "fs";
 import os from "os";
 import path from "path";
 
@@ -13,6 +14,7 @@ export async function saveAttachment(
   const mbox = escapeForAppleScript(mailbox);
   const msgId = escapeForAppleScript(messageId);
   const dir = savePath ?? path.join(os.homedir(), "Downloads");
+  fs.mkdirSync(dir, { recursive: true });
   const escapedDir = escapeForAppleScript(dir);
 
   let saveBlock: string;
@@ -22,7 +24,8 @@ export async function saveAttachment(
   set savedFiles to ""
   repeat with att in mail attachments of m
     if name of att is "${escapedName}" then
-      save att in POSIX file "${escapedDir}/" & name of att
+      set filePath to "${escapedDir}/" & name of att
+      save att in POSIX file filePath
       set savedFiles to savedFiles & name of att & "|||"
     end if
   end repeat`;
@@ -30,7 +33,8 @@ export async function saveAttachment(
     saveBlock = `
   set savedFiles to ""
   repeat with att in mail attachments of m
-    save att in POSIX file "${escapedDir}/" & name of att
+    set filePath to "${escapedDir}/" & name of att
+    save att in POSIX file filePath
     set savedFiles to savedFiles & name of att & "|||"
   end repeat`;
   }
