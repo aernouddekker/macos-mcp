@@ -11,6 +11,22 @@ export async function runAppleScript(script: string): Promise<string> {
   return stdout.trim();
 }
 
+export async function runJXA(script: string): Promise<string> {
+  const { stdout } = await execFileAsync("osascript", ["-l", "JavaScript", "-e", script], {
+    timeout: 30_000,
+    maxBuffer: 10 * 1024 * 1024,
+  });
+  return stdout.trim();
+}
+
+/**
+ * Convert a string into a JavaScript string literal safe for embedding into a
+ * JXA script. Uses JSON.stringify which produces a valid JS string literal.
+ */
+export function jsLiteral(value: unknown): string {
+  return JSON.stringify(value ?? null);
+}
+
 export function escapeForAppleScript(s: string): string {
   return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }

@@ -1,6 +1,8 @@
 export {
   runAppleScript,
+  runJXA,
   escapeForAppleScript,
+  jsLiteral,
   parseRecords,
   FIELD_SEP,
   RECORD_SEP,

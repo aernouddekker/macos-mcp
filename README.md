@@ -1,6 +1,6 @@
 # macos-mcp
 
-MCP servers for macOS native apps — gives [Claude Code](https://claude.ai/code), [Claude Desktop](https://claude.ai/download), and any MCP client native access to Mail, Numbers, Contacts, printing (CUPS), and FaceTime / phone calls.
+MCP servers for macOS native apps — gives [Claude Code](https://claude.ai/code), [Claude Desktop](https://claude.ai/download), and any MCP client native access to Mail, Numbers, Contacts, Calendar, Reminders, printing (CUPS), and FaceTime / phone calls.
 
 No API keys, no OAuth, no cloud services. Talks directly to macOS apps via AppleScript, CUPS (`lp`/`lpstat`), and URL schemes (`tel://`, `facetime://`). Runs locally on your Mac.
 
@@ -20,8 +20,8 @@ Works with every email account configured in Mail.app — iCloud, Gmail, Outlook
 | `get-message-source` | Get raw RFC822 source of a message |
 | `list-attachments` | List attachments on a message with name, MIME type, size |
 | `save-attachment` | Save email attachments to disk |
-| `compose-message` | Create a draft in Mail.app (does **not** send) |
-| `send-message` | Send an email immediately (supports `from` and attachments) |
+| `compose-message` | Create a draft in Mail.app (does **not** send) — supports plain or HTML body via `htmlBody` |
+| `send-message` | Send an email immediately (supports `from`, attachments, plain or HTML body via `htmlBody`) |
 | `reply-to-message` | Reply or reply-all to a message |
 | `forward-message` | Forward a message to new recipients |
 | `redirect-message` | Redirect a message (preserves original sender) |
@@ -124,6 +124,35 @@ Works with every calendar configured in Calendar.app — iCloud, Google, Exchang
 | `add-mail-alarm` | Add a mail alarm N minutes before event start |
 | `remove-alarm` | Remove an alarm by 1-based index from list-alarms output |
 
+### Reminders (`@aernoud/remindermcp`) — 22 tools
+
+Works with every reminder list configured in Reminders.app — iCloud, Exchange, local, you name it.
+
+| Tool | Description |
+|------|-------------|
+| `list-accounts` | List all accounts in Reminders.app with name and id |
+| `list-lists` | List every reminder list, optionally scoped to one account |
+| `get-list` | Get properties of a single list (id, account, color, emblem, open + completed counts) |
+| `create-list` | Create a new list, optionally in a specific account |
+| `update-list` | Rename a list |
+| `delete-list` | Delete a list (Reminders.app supports this directly via AppleScript, unlike Calendar.app) |
+| `show-list` | Bring a list to the front in Reminders.app |
+| `list-reminders` | List reminders in a named list (excludes completed by default) |
+| `search-reminders` | Search reminders by name substring; scope to one list for speed |
+| `get-reminder` | Get full reminder details by id |
+| `today-reminders` | List reminders due today, scoped to one list or all |
+| `upcoming-reminders` | List reminders due in the next N days |
+| `overdue-reminders` | List reminders past their due date and not yet completed |
+| `create-reminder` | Create a reminder with body, due date or all-day due date, remind-me date, priority, flagged |
+| `update-reminder` | Patch any reminder field by id |
+| `delete-reminder` | Delete a reminder by id |
+| `complete-reminder` | Mark a reminder as completed (Reminders auto-stamps completion date) |
+| `uncomplete-reminder` | Mark a previously completed reminder as not completed |
+| `move-reminder` | Move a reminder to a different list (uses the native `move` verb — id is preserved) |
+| `flag-reminder` | Set or clear the flagged state |
+| `set-priority` | Set priority to none / high / medium / low (mapped to Reminders' 0/1/5/9 enum) |
+| `show-reminder` | Bring Reminders.app to the front and focus a specific reminder |
+
 ### Print (`printmcp`) — 5 tools
 
 Wraps the macOS CUPS print system (`lp`, `lpstat`, `lpoptions`, `cancel`). Discovers any printer the Mac knows about — local USB, network, AirPrint, shared from another Mac. No AppleScript involved.
@@ -164,6 +193,7 @@ npm install -g mailappmcp            # Mail server
 npm install -g numbersmcp            # Numbers server
 npm install -g contactsmcp           # Contacts server
 npm install -g @aernoud/calendarmcp  # Calendar server
+npm install -g @aernoud/remindermcp  # Reminders server
 npm install -g @aernoud/printmcp     # Print server (CUPS)
 npm install -g @aernoud/facetimemcp  # FaceTime / phone calls
 ```
@@ -190,6 +220,7 @@ Add to `~/.claude/settings.json` or your project's `.mcp.json`:
     "numbersmcp":   { "command": "npx", "args": ["-y", "numbersmcp"] },
     "contactsmcp":  { "command": "npx", "args": ["-y", "contactsmcp"] },
     "calendarmcp":  { "command": "npx", "args": ["-y", "@aernoud/calendarmcp"] },
+    "remindermcp":  { "command": "npx", "args": ["-y", "@aernoud/remindermcp"] },
     "printmcp":     { "command": "npx", "args": ["-y", "@aernoud/printmcp"] },
     "facetimemcp":  { "command": "npx", "args": ["-y", "@aernoud/facetimemcp"] }
   }
@@ -207,6 +238,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
     "numbersmcp":   { "command": "npx", "args": ["-y", "numbersmcp"] },
     "contactsmcp":  { "command": "npx", "args": ["-y", "contactsmcp"] },
     "calendarmcp":  { "command": "npx", "args": ["-y", "@aernoud/calendarmcp"] },
+    "remindermcp":  { "command": "npx", "args": ["-y", "@aernoud/remindermcp"] },
     "printmcp":     { "command": "npx", "args": ["-y", "@aernoud/printmcp"] },
     "facetimemcp":  { "command": "npx", "args": ["-y", "@aernoud/facetimemcp"] }
   }
@@ -223,6 +255,22 @@ Each server runs locally over stdio. The Mail, Numbers, and Contacts servers bui
 - `send-message` is a separate, explicit action
 - `reply-to-message` and `forward-message` default to draft mode (`sendImmediately: false`)
 - `delete-messages` moves to Trash (standard Mail.app behavior)
+
+### HTML email
+
+`compose-message` and `send-message` accept an optional `htmlBody` parameter. When supplied, the message is created as a rich-text/HTML message and the recipient sees rendered formatting (headings, bold, lists, clickable links) instead of raw tags. `body` is still required and is used as the plain-text fallback for clients that read plain content. Omit `htmlBody` for the existing plain-text behavior — fully backward compatible.
+
+```jsonc
+// send-message with HTML body
+{
+  "to": ["alice@example.com"],
+  "subject": "Weekly update",
+  "body": "Highlights:\n- Shipped feature X\n- Fixed bug Y",
+  "htmlBody": "<h2>Highlights</h2><ul><li>Shipped <b>feature X</b></li><li>Fixed bug Y — see <a href=\"https://example.com/issue/42\">#42</a></li></ul>"
+}
+```
+
+Under the hood, the HTML path uses JXA (`osascript -l JavaScript`) and Mail.app's runtime `htmlContent` setter on outgoing messages. The plain-text path still uses ordinary AppleScript.
 
 ## Known limitations
 

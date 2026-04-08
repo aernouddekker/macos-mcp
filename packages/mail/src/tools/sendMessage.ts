@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "@mailappmcp/shared";
+import { runAppleScript, runJXA, escapeForAppleScript, jsLiteral } from "@mailappmcp/shared";
 
 export async function sendMessage(
   to: string[],
@@ -7,7 +7,12 @@ export async function sendMessage(
   cc?: string[],
   from?: string,
   attachments?: string[],
+  htmlBody?: string,
 ) {
+  if (htmlBody !== undefined) {
+    return sendHtmlMessage(to, subject, body, cc, from, attachments, htmlBody);
+  }
+
   const subj = escapeForAppleScript(subject);
   const content = escapeForAppleScript(body);
 
@@ -38,5 +43,47 @@ tell application "Mail"
 end tell`;
 
   await runAppleScript(script);
+  return { status: "sent" as const };
+}
+
+async function sendHtmlMessage(
+  to: string[],
+  subject: string,
+  body: string,
+  cc: string[] | undefined,
+  from: string | undefined,
+  attachments: string[] | undefined,
+  htmlBody: string,
+) {
+  // JXA path — see composeMessage for rationale. We assemble the message,
+  // assign htmlContent so the wire body is HTML, then send.
+  const senderAssign = from
+    ? `msg.sender = ${jsLiteral(from)};`
+    : "";
+
+  const script = `
+var Mail = Application('Mail');
+var msg = Mail.OutgoingMessage({
+  subject: ${jsLiteral(subject)},
+  content: ${jsLiteral(body)},
+  visible: false
+});
+Mail.outgoingMessages.push(msg);
+${senderAssign}
+msg.htmlContent = ${jsLiteral(htmlBody)};
+${jsLiteral(to)}.forEach(function(addr) {
+  msg.toRecipients.push(Mail.ToRecipient({address: addr}));
+});
+${jsLiteral(cc ?? [])}.forEach(function(addr) {
+  msg.ccRecipients.push(Mail.CcRecipient({address: addr}));
+});
+${jsLiteral(attachments ?? [])}.forEach(function(p) {
+  msg.content.attachments.push(Mail.Attachment({fileName: Path(p)}));
+});
+Mail.send(msg);
+"sent";
+`;
+
+  await runJXA(script);
   return { status: "sent" as const };
 }

@@ -74,32 +74,34 @@ server.tool(
 
 server.tool(
   "compose-message",
-  "Create a new email draft in Mail.app (opens compose window, does NOT send)",
+  "Create a new email draft in Mail.app (opens compose window, does NOT send). Pass htmlBody for a rich-text/HTML draft; the recipient will see rendered formatting (headings, bold, links) instead of raw tags. When htmlBody is supplied, body is still used as a plain-text fallback for clients that read plain content.",
   {
     to: z.array(z.string()).describe("Recipient email addresses"),
     subject: z.string().describe("Email subject"),
-    body: z.string().describe("Email body text"),
+    body: z.string().describe("Email body as plain text (also used as the plain-text fallback when htmlBody is supplied)"),
     cc: z.array(z.string()).optional().describe("CC email addresses"),
+    htmlBody: z.string().optional().describe("Optional HTML body. When set, the draft is created as a rich-text/HTML message and the recipient sees rendered formatting. Backward compatible: omit to send as plain text."),
   },
-  async ({ to, subject, body, cc }) => {
-    const result = await composeMessage(to, subject, body, cc);
+  async ({ to, subject, body, cc, htmlBody }) => {
+    const result = await composeMessage(to, subject, body, cc, htmlBody);
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   },
 );
 
 server.tool(
   "send-message",
-  "Create and immediately send an email via Mail.app",
+  "Create and immediately send an email via Mail.app. Pass htmlBody to send a rich-text/HTML message; the recipient will see rendered formatting (headings, bold, links) instead of raw tags. When htmlBody is supplied, body is still used as a plain-text fallback for clients that read plain content.",
   {
     to: z.array(z.string()).describe("Recipient email addresses"),
     subject: z.string().describe("Email subject"),
-    body: z.string().describe("Email body text"),
+    body: z.string().describe("Email body as plain text (also used as the plain-text fallback when htmlBody is supplied)"),
     cc: z.array(z.string()).optional().describe("CC email addresses"),
     from: z.string().optional().describe("Sender email address (must be configured in Mail.app)"),
     attachments: z.array(z.string()).optional().describe("Absolute file paths to attach"),
+    htmlBody: z.string().optional().describe("Optional HTML body. When set, the message is sent as rich-text/HTML and the recipient sees rendered formatting. Backward compatible: omit to send as plain text."),
   },
-  async ({ to, subject, body, cc, from, attachments }) => {
-    const result = await sendMessage(to, subject, body, cc, from, attachments);
+  async ({ to, subject, body, cc, from, attachments, htmlBody }) => {
+    const result = await sendMessage(to, subject, body, cc, from, attachments, htmlBody);
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   },
 );
