@@ -160,11 +160,12 @@ Phone numbers are normalized + validated as E.164 (`+15551234567`); spaces, dash
 ### From npm
 
 ```bash
-npm install -g mailappmcp           # Mail server
-npm install -g numbersmcp           # Numbers server
-npm install -g contactsmcp          # Contacts server
-npm install -g @aernoud/printmcp    # Print server (CUPS)
-npm install -g @aernoud/facetimemcp # FaceTime / phone calls
+npm install -g mailappmcp            # Mail server
+npm install -g numbersmcp            # Numbers server
+npm install -g contactsmcp           # Contacts server
+npm install -g @aernoud/calendarmcp  # Calendar server
+npm install -g @aernoud/printmcp     # Print server (CUPS)
+npm install -g @aernoud/facetimemcp  # FaceTime / phone calls
 ```
 
 ### From source
@@ -188,6 +189,7 @@ Add to `~/.claude/settings.json` or your project's `.mcp.json`:
     "mailappmcp":   { "command": "npx", "args": ["-y", "mailappmcp"] },
     "numbersmcp":   { "command": "npx", "args": ["-y", "numbersmcp"] },
     "contactsmcp":  { "command": "npx", "args": ["-y", "contactsmcp"] },
+    "calendarmcp":  { "command": "npx", "args": ["-y", "@aernoud/calendarmcp"] },
     "printmcp":     { "command": "npx", "args": ["-y", "@aernoud/printmcp"] },
     "facetimemcp":  { "command": "npx", "args": ["-y", "@aernoud/facetimemcp"] }
   }
@@ -204,6 +206,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
     "mailappmcp":   { "command": "npx", "args": ["-y", "mailappmcp"] },
     "numbersmcp":   { "command": "npx", "args": ["-y", "numbersmcp"] },
     "contactsmcp":  { "command": "npx", "args": ["-y", "contactsmcp"] },
+    "calendarmcp":  { "command": "npx", "args": ["-y", "@aernoud/calendarmcp"] },
     "printmcp":     { "command": "npx", "args": ["-y", "@aernoud/printmcp"] },
     "facetimemcp":  { "command": "npx", "args": ["-y", "@aernoud/facetimemcp"] }
   }
