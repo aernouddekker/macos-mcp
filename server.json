@@ -3,15 +3,15 @@
   "name": "io.github.aernouddekker/mailappmcp",
   "description": "MCP server for macOS Mail.app — gives Claude native email access via AppleScript",
   "repository": {
-    "url": "https://github.com/aernouddekker/mailappmcp",
+    "url": "https://github.com/aernouddekker/macos-mcp",
     "source": "github"
   },
-  "version": "0.3.1",
+  "version": "0.3.2",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "mailappmcp",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "transport": {
         "type": "stdio"
       }

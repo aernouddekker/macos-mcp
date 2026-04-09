@@ -1,17 +1,17 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.aernouddekker/contactsmcp",
-  "description": "MCP server for macOS Contacts.app — contact management via AppleScript",
+  "name": "io.github.aernouddekker/calendarmcp",
+  "description": "MCP server for macOS Calendar.app — calendar and event management via AppleScript",
   "repository": {
     "url": "https://github.com/aernouddekker/macos-mcp",
     "source": "github"
   },
-  "version": "0.3.1",
+  "version": "0.1.1",
   "packages": [
     {
       "registryType": "npm",
-      "identifier": "@aernoud/contactsmcp",
-      "version": "0.3.1",
+      "identifier": "@aernoud/calendarmcp",
+      "version": "0.1.1",
       "transport": {
         "type": "stdio"
       }

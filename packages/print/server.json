@@ -1,17 +1,17 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.aernouddekker/contactsmcp",
-  "description": "MCP server for macOS Contacts.app — contact management via AppleScript",
+  "name": "io.github.aernouddekker/printmcp",
+  "description": "MCP server for macOS printing — wraps CUPS (lp/lpstat/lpoptions) for printer discovery and printing",
   "repository": {
     "url": "https://github.com/aernouddekker/macos-mcp",
     "source": "github"
   },
-  "version": "0.3.1",
+  "version": "0.1.1",
   "packages": [
     {
       "registryType": "npm",
-      "identifier": "@aernoud/contactsmcp",
-      "version": "0.3.1",
+      "identifier": "@aernoud/printmcp",
+      "version": "0.1.1",
       "transport": {
         "type": "stdio"
       }
