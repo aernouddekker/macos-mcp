@@ -1,0 +1,18 @@
+{
+  "name": "@aernoud/remindermcp",
+  "version": "0.1.0",
+  "description": "MCP server for macOS Reminders.app — list/reminder management via AppleScript",
+  "mcpName": "io.github.aernouddekker/remindermcp",
+  "type": "module",
+  "bin": { "remindermcp": "./dist/index.js" },
+  "files": ["dist"],
+  "scripts": { "build": "tsc", "start": "node dist/index.js", "prepublishOnly": "npm run build" },
+  "keywords": ["mcp", "mcp-server", "reminders", "tasks", "todo", "macos", "applescript", "claude"],
+  "author": "Aernoud Dekker",
+  "repository": { "type": "git", "url": "https://github.com/aernouddekker/macos-mcp.git", "directory": "packages/reminder" },
+  "dependencies": { "@mailappmcp/shared": "*", "@modelcontextprotocol/sdk": "^1.12.0", "zod": "^3.23.0" },
+  "devDependencies": { "typescript": "^5.5.0", "@types/node": "^22.0.0" },
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "os": ["darwin"]
+}

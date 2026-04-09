@@ -4,33 +4,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-A monorepo of macOS MCP servers that wrap AppleScript calls to native macOS apps via `osascript`. Gives Claude Code and Cowork native access to Mail, Numbers, and Contacts. Runs locally, no auth needed, works with any accounts configured in the respective apps.
+A monorepo of macOS MCP servers that wrap AppleScript calls to native macOS apps via `osascript`, plus a CUPS print server and a FaceTime/phone-call helper. Gives Claude Code and Cowork native access to Mail, Numbers, Contacts, Calendar, Reminders, printing, and FaceTime. Runs locally, no auth needed, works with any accounts configured in the respective apps.
 
 ## Build & Run
 
 ```bash
 npm install               # Install all workspace dependencies
-npm run build             # Build all packages (shared → mail → numbers → contacts)
+npm run build             # Build all workspace packages
 npm run build --workspace=packages/mail      # Build a single package
 ```
 
-No tests yet. All servers communicate over stdio — they're not HTTP servers.
+No tests yet. All AppleScript-based servers communicate over stdio — they're not HTTP servers.
 
 ## Architecture
 
-**Monorepo:** npm workspaces with four packages under `packages/`.
+**Monorepo:** npm workspaces with one shared package and seven server packages under `packages/`.
 
-**Shared package (`@mailappmcp/shared`):** `packages/shared/src/applescript.ts` — `runAppleScript()` executes scripts via `child_process.execFile("osascript", ...)`. Uses delimiter-based parsing (`|||` between fields, `~~~` between records). `escapeForAppleScript()` handles quote/backslash escaping.
+**Shared package (`@mailappmcp/shared`):** `packages/shared/src/applescript.ts` — `runAppleScript()` executes scripts via `child_process.execFile("osascript", ...)`. Uses delimiter-based parsing (`|||` between fields, `~~~` between records). `escapeForAppleScript()` handles quote/backslash escaping. Also exports `runCommand()` for non-AppleScript shell-outs.
 
-**Three MCP servers:**
+**Seven MCP servers:**
 
-| Package | npm name | App | Tools |
-|---------|----------|-----|-------|
+| Package | npm name | App / system | Tools |
+|---------|----------|--------------|-------|
 | `packages/mail` | `mailappmcp` | Mail.app | 21 tools |
 | `packages/numbers` | `numbersmcp` | Numbers.app | 29 tools |
 | `packages/contacts` | `contactsmcp` | Contacts.app | 15 tools |
+| `packages/calendar` | `@aernoud/calendarmcp` | Calendar.app | 25 tools |
+| `packages/reminder` | `@aernoud/remindermcp` | Reminders.app | 22 tools |
+| `packages/print` | `@aernoud/printmcp` | CUPS (`lp`/`lpstat`) | 5 tools |
+| `packages/facetime` | `@aernoud/facetimemcp` | `tel://` / `facetime://` URL schemes | 3 tools |
 
-**Pattern:** Each server's `src/index.ts` creates an `McpServer`, registers tools with Zod schemas, connects via `StdioServerTransport`. Each tool file builds an AppleScript string using helpers from `@mailappmcp/shared`, executes it, and parses the result.
+**Pattern:** Each server's `src/index.ts` creates an `McpServer`, registers tools with Zod schemas, connects via `StdioServerTransport`. Each AppleScript tool file builds a script using helpers from `@mailappmcp/shared`, executes it, and parses the result. The calendar and reminder packages keep a local `src/helpers/dates.ts` so date interpolation is locale-safe (avoids `date "string"` parsing).
 
 ## Key Constraints
 
