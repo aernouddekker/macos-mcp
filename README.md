@@ -124,7 +124,7 @@ Works with every calendar configured in Calendar.app — iCloud, Google, Exchang
 | `add-mail-alarm` | Add a mail alarm N minutes before event start |
 | `remove-alarm` | Remove an alarm by 1-based index from list-alarms output |
 
-### Reminders (`@aernoud/remindermcp`) — 22 tools
+### Reminders (`@aernoud/remindersmcp`) — 22 tools
 
 Works with every reminder list configured in Reminders.app — iCloud, Exchange, local, you name it.
 
@@ -193,7 +193,7 @@ npm install -g mailappmcp            # Mail server
 npm install -g numbersmcp            # Numbers server
 npm install -g contactsmcp           # Contacts server
 npm install -g @aernoud/calendarmcp  # Calendar server
-npm install -g @aernoud/remindermcp  # Reminders server
+npm install -g @aernoud/remindersmcp # Reminders server
 npm install -g @aernoud/printmcp     # Print server (CUPS)
 npm install -g @aernoud/facetimemcp  # FaceTime / phone calls
 ```
@@ -220,7 +220,7 @@ Add to `~/.claude/settings.json` or your project's `.mcp.json`:
     "numbersmcp":   { "command": "npx", "args": ["-y", "numbersmcp"] },
     "contactsmcp":  { "command": "npx", "args": ["-y", "contactsmcp"] },
     "calendarmcp":  { "command": "npx", "args": ["-y", "@aernoud/calendarmcp"] },
-    "remindermcp":  { "command": "npx", "args": ["-y", "@aernoud/remindermcp"] },
+    "remindersmcp": { "command": "npx", "args": ["-y", "@aernoud/remindersmcp"] },
     "printmcp":     { "command": "npx", "args": ["-y", "@aernoud/printmcp"] },
     "facetimemcp":  { "command": "npx", "args": ["-y", "@aernoud/facetimemcp"] }
   }
@@ -238,7 +238,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
     "numbersmcp":   { "command": "npx", "args": ["-y", "numbersmcp"] },
     "contactsmcp":  { "command": "npx", "args": ["-y", "contactsmcp"] },
     "calendarmcp":  { "command": "npx", "args": ["-y", "@aernoud/calendarmcp"] },
-    "remindermcp":  { "command": "npx", "args": ["-y", "@aernoud/remindermcp"] },
+    "remindersmcp": { "command": "npx", "args": ["-y", "@aernoud/remindersmcp"] },
     "printmcp":     { "command": "npx", "args": ["-y", "@aernoud/printmcp"] },
     "facetimemcp":  { "command": "npx", "args": ["-y", "@aernoud/facetimemcp"] }
   }

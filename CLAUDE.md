@@ -30,11 +30,11 @@ No tests yet. All AppleScript-based servers communicate over stdio — they're n
 | `packages/numbers` | `numbersmcp` | Numbers.app | 29 tools |
 | `packages/contacts` | `contactsmcp` | Contacts.app | 15 tools |
 | `packages/calendar` | `@aernoud/calendarmcp` | Calendar.app | 25 tools |
-| `packages/reminder` | `@aernoud/remindermcp` | Reminders.app | 22 tools |
+| `packages/reminders` | `@aernoud/remindersmcp` | Reminders.app | 22 tools |
 | `packages/print` | `@aernoud/printmcp` | CUPS (`lp`/`lpstat`) | 5 tools |
 | `packages/facetime` | `@aernoud/facetimemcp` | `tel://` / `facetime://` URL schemes | 3 tools |
 
-**Pattern:** Each server's `src/index.ts` creates an `McpServer`, registers tools with Zod schemas, connects via `StdioServerTransport`. Each AppleScript tool file builds a script using helpers from `@mailappmcp/shared`, executes it, and parses the result. The calendar and reminder packages keep a local `src/helpers/dates.ts` so date interpolation is locale-safe (avoids `date "string"` parsing).
+**Pattern:** Each server's `src/index.ts` creates an `McpServer`, registers tools with Zod schemas, connects via `StdioServerTransport`. Each AppleScript tool file builds a script using helpers from `@mailappmcp/shared`, executes it, and parses the result. The calendar and reminders packages keep a local `src/helpers/dates.ts` so date interpolation is locale-safe (avoids `date "string"` parsing).
 
 ## Key Constraints
 

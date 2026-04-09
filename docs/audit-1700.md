@@ -70,20 +70,20 @@ See commit (d) message. Rules:
 | packages/contacts/src/tools/searchContacts.ts:27 | SAFE | `ph` used only via `value of ph` — property access |
 | packages/contacts/src/tools/searchContacts.ts:43 | SAFE | `p` used only via `id of p`, `name of p`, `organization of p`, `emails of p`, `phones of p` — property accesses |
 | packages/contacts/src/tools/listGroupMembers.ts:16 | SAFE | `p` used only via `id of p`, `name of p`, `emails of p`, `phones of p` — property accesses |
-| packages/reminder/src/tools/todayReminders.ts:28 | SAFE | `l` used only via `name of l` and as object specifier — property access |
-| packages/reminder/src/tools/todayReminders.ts:36 | SAFE | `r` used only via `id of r`, `name of r`, `body of r`, etc. inside `appendReminderRecord` — all property accesses |
-| packages/reminder/src/tools/updateReminder.ts:44 | SAFE | `l` used only as object specifier in reminder query — no string concat |
-| packages/reminder/src/tools/overdueReminders.ts:23 | SAFE | `l` used only via `name of l` and as object specifier — property access |
-| packages/reminder/src/tools/overdueReminders.ts:31 | SAFE | `r` used only via property accesses inside `appendReminderRecord` |
-| packages/reminder/src/tools/upcomingReminders.ts:30 | SAFE | `l` used only via `name of l` and as object specifier — property access |
-| packages/reminder/src/tools/upcomingReminders.ts:38 | SAFE | `r` used only via property accesses inside `appendReminderRecord` |
-| packages/reminder/src/tools/listLists.ts:18 | SAFE | `l` used only via `id of l`, `name of l`, `container of l`, `color of l`, `emblem of l` — property accesses |
-| packages/reminder/src/tools/searchReminders.ts:28 | SAFE | `l` used only via `name of l` and as object specifier — property access |
-| packages/reminder/src/tools/searchReminders.ts:36 | SAFE | `r` used only via `id of r`, `name of r`, `completed of r`, `due date of r` — property accesses |
-| packages/reminder/src/tools/getReminder.ts:9 | SAFE | `l` used only as object specifier and `name of l` — property access |
-| packages/reminder/src/tools/listReminders.ts:24 | SAFE | `r` used only via `id of r`, `name of r`, `body of r`, `completed of r`, `due date of r`, etc. — all property accesses |
-| packages/reminder/src/tools/listAccounts.ts:7 | SAFE | `a` used only via `name of a`, `id of a` — property accesses |
-| packages/reminder/src/helpers/findById.ts:11 | SAFE | `l` used only as object specifier in reminder query — no string concat |
+| packages/reminders/src/tools/todayReminders.ts:28 | SAFE | `l` used only via `name of l` and as object specifier — property access |
+| packages/reminders/src/tools/todayReminders.ts:36 | SAFE | `r` used only via `id of r`, `name of r`, `body of r`, etc. inside `appendReminderRecord` — all property accesses |
+| packages/reminders/src/tools/updateReminder.ts:44 | SAFE | `l` used only as object specifier in reminder query — no string concat |
+| packages/reminders/src/tools/overdueReminders.ts:23 | SAFE | `l` used only via `name of l` and as object specifier — property access |
+| packages/reminders/src/tools/overdueReminders.ts:31 | SAFE | `r` used only via property accesses inside `appendReminderRecord` |
+| packages/reminders/src/tools/upcomingReminders.ts:30 | SAFE | `l` used only via `name of l` and as object specifier — property access |
+| packages/reminders/src/tools/upcomingReminders.ts:38 | SAFE | `r` used only via property accesses inside `appendReminderRecord` |
+| packages/reminders/src/tools/listLists.ts:18 | SAFE | `l` used only via `id of l`, `name of l`, `container of l`, `color of l`, `emblem of l` — property accesses |
+| packages/reminders/src/tools/searchReminders.ts:28 | SAFE | `l` used only via `name of l` and as object specifier — property access |
+| packages/reminders/src/tools/searchReminders.ts:36 | SAFE | `r` used only via `id of r`, `name of r`, `completed of r`, `due date of r` — property accesses |
+| packages/reminders/src/tools/getReminder.ts:9 | SAFE | `l` used only as object specifier and `name of l` — property access |
+| packages/reminders/src/tools/listReminders.ts:24 | SAFE | `r` used only via `id of r`, `name of r`, `body of r`, `completed of r`, `due date of r`, etc. — all property accesses |
+| packages/reminders/src/tools/listAccounts.ts:7 | SAFE | `a` used only via `name of a`, `id of a` — property accesses |
+| packages/reminders/src/helpers/findById.ts:11 | SAFE | `l` used only as object specifier in reminder query — no string concat |
 
 ## Summary
 

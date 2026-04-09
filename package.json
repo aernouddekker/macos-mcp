@@ -5,7 +5,7 @@
     "packages/numbers",
     "packages/contacts",
     "packages/calendar",
-    "packages/reminder",
+    "packages/reminders",
     "packages/print",
     "packages/facetime"
   ],

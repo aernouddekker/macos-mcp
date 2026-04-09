@@ -27,7 +27,7 @@ import { setPriority } from "./tools/setPriority.js";
 import { showReminder } from "./tools/showReminder.js";
 
 const server = new McpServer({
-  name: "remindermcp",
+  name: "remindersmcp",
   version: "0.1.0",
 });
 
