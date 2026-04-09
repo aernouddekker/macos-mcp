@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
 
 export async function renameGroup(groupName: string, newName: string) {
   const gName = escapeForAppleScript(groupName);

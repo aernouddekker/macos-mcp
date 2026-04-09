@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
 
 function colLetterToNum(col: string): number {
   let n = 0;

@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
 
 // Reminders.app supports `delete list` via AppleScript on modern macOS
 // (unlike Calendar.app, where the equivalent verb raises -10000). If a future

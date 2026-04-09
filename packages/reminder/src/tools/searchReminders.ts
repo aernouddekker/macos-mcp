@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 // Substring match against reminder name. Optionally scoped to a single list
 // (recommended — `whose` filters are O(n) on Reminders.app stores too).

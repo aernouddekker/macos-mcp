@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript, parseRecords } from "../lib/applescript.js";
 import { appendReminderRecord, REMINDER_RECORD_FIELDS, coerceReminderRecord } from "../helpers/reminderFields.js";
 
 export async function todayReminders(listName?: string, includeCompleted: boolean = false, limit: number = 100) {

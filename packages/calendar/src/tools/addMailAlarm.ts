@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
 
 export async function addMailAlarm(uid: string, minutesBefore: number) {
   const u = escapeForAppleScript(uid);

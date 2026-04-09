@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { runCommand } from "@mailappmcp/shared";
+import { runCommand } from "../lib/shell.js";
 
 export interface PrintFileOptions {
   filePath: string;

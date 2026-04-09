@@ -1,4 +1,4 @@
-import { FIELD_SEP, RECORD_SEP } from "@mailappmcp/shared";
+import { FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 /**
  * AppleScript snippet that, given a variable `r` bound to a reminder, appends

@@ -1,4 +1,4 @@
-import { runCommand } from "@mailappmcp/shared";
+import { runCommand } from "../lib/shell.js";
 
 export interface PrinterOption {
   key: string;

@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
 
 // Note: Calendar.app calendars have no AppleScript-accessible id, so we
 // don't try to read it back. The calendar is identified by name everywhere.

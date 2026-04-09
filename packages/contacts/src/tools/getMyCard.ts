@@ -1,4 +1,4 @@
-import { runAppleScript, FIELD_SEP } from "@mailappmcp/shared";
+import { runAppleScript, FIELD_SEP } from "../lib/applescript.js";
 
 export async function getMyCard() {
   const script = `

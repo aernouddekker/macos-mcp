@@ -1,4 +1,4 @@
-import { runAppleScript } from "@mailappmcp/shared";
+import { runAppleScript } from "../lib/applescript.js";
 import { appleScriptDateHelper, isoToAppleScriptDate } from "../helpers/dates.js";
 
 export type ViewType = "day" | "week" | "month";

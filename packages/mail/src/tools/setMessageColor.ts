@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
 
 type MessageColor = "blue" | "gray" | "green" | "orange" | "purple" | "red" | "yellow" | "none";
 

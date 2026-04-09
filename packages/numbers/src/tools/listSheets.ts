@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript, parseRecords } from "../lib/applescript.js";
 
 export async function listSheets(document: string) {
   const docEsc = escapeForAppleScript(document);

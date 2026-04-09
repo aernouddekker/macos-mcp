@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
 import { findReminderById } from "../helpers/findById.js";
 
 // Reminders.app priority is an integer enum: 0=none, 1=high, 5=medium, 9=low.

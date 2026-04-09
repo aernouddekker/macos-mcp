@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function todayEvents(calendarName?: string, limit: number = 100) {
   const cName = calendarName ? escapeForAppleScript(calendarName) : "";

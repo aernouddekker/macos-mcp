@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, FIELD_SEP, RECORD_SEP } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function searchByModificationDate(since: string, limit: number) {
   const escapedDate = escapeForAppleScript(since);

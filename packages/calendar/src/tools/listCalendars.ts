@@ -1,4 +1,4 @@
-import { runAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "@mailappmcp/shared";
+import { runAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 // Note: Calendar.app's `calendar` class does not expose a usable id/uid via
 // AppleScript (raises -10000). Calendars are identified by name everywhere

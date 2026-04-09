@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
 
 export async function duplicateEvent(uid: string, targetCalendar?: string) {
   const u = escapeForAppleScript(uid);

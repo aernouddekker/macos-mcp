@@ -1,4 +1,4 @@
-import { runAppleScript, parseRecords } from "@mailappmcp/shared";
+import { runAppleScript, parseRecords } from "../lib/applescript.js";
 
 export async function listSpreadsheets() {
   const script = `

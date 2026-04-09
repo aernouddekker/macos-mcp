@@ -1,4 +1,4 @@
-import { runCommand } from "@mailappmcp/shared";
+import { runCommand } from "../lib/shell.js";
 
 export type CallMode = "phone" | "audio" | "video";
 

@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, FIELD_SEP } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript, FIELD_SEP } from "../lib/applescript.js";
 
 export async function getCalendar(name: string) {
   const n = escapeForAppleScript(name);

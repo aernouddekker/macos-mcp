@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
 import { findReminderById } from "../helpers/findById.js";
 
 export async function flagReminder(id: string, flagged: boolean) {

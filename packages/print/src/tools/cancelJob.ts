@@ -1,4 +1,4 @@
-import { runCommand } from "@mailappmcp/shared";
+import { runCommand } from "../lib/shell.js";
 
 /**
  * Cancel a CUPS print job by id (e.g. "Brother_HL_L2350DW-42") via `cancel`.

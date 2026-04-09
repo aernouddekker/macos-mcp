@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript, parseRecords } from "../lib/applescript.js";
 import { appendReminderRecord, REMINDER_RECORD_FIELDS, coerceReminderRecord } from "../helpers/reminderFields.js";
 
 // Reminders due before now and not yet completed.

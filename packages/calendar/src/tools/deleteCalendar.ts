@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "@mailappmcp/shared";
+import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
 
 // IMPORTANT: Calendar.app does NOT support deleting calendars via AppleScript.
 // `delete calendar` raises -10000 (AppleEvent handler failed) on every macOS

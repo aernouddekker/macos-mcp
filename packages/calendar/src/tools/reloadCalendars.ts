@@ -1,4 +1,4 @@
-import { runAppleScript } from "@mailappmcp/shared";
+import { runAppleScript } from "../lib/applescript.js";
 
 export async function reloadCalendars() {
   const script = `

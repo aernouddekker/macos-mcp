@@ -1,4 +1,4 @@
-import { runAppleScript, runJXA, escapeForAppleScript, jsLiteral } from "@mailappmcp/shared";
+import { runAppleScript, runJXA, escapeForAppleScript, jsLiteral } from "../lib/applescript.js";
 
 export async function sendMessage(
   to: string[],
