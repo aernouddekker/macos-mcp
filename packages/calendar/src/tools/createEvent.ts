@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 import { appleScriptDateHelper, isoToAppleScriptDate } from "../helpers/dates.js";
 
 export async function createEvent(
@@ -26,7 +26,7 @@ export async function createEvent(
   if (description !== undefined) props.push(`description:"${escapeForAppleScript(description)}"`);
   if (url !== undefined) props.push(`url:"${escapeForAppleScript(url)}"`);
 
-  const script = `
+  const script = withLaunch("Calendar", `
 ${appleScriptDateHelper()}
 tell application "Calendar"
   set results to (every calendar whose name is "${cName}")
@@ -40,7 +40,7 @@ tell application "Calendar"
     set newEvent to make new event with properties {${props.join(", ")}}
   end tell
   return uid of newEvent
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

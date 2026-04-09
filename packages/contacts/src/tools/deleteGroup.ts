@@ -1,9 +1,9 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function deleteGroup(groupName: string) {
   const gName = escapeForAppleScript(groupName);
 
-  const script = `
+  const script = withLaunch("Contacts", `
 tell application "Contacts"
   set groupResults to (every group whose name is "${gName}")
   if (count of groupResults) = 0 then
@@ -13,7 +13,7 @@ tell application "Contacts"
   delete g
   save
   return "deleted"
-end tell`;
+end tell`);
 
   const result = await runAppleScript(script);
   const trimmed = result.trim();

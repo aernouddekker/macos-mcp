@@ -1,19 +1,19 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function checkForNewMail(account?: string) {
   let script: string;
 
   if (account) {
     const acct = escapeForAppleScript(account);
-    script = `
+    script = withLaunch("Mail", `
 tell application "Mail"
   check for new mail for account "${acct}"
-end tell`;
+end tell`);
   } else {
-    script = `
+    script = withLaunch("Mail", `
 tell application "Mail"
   check for new mail
-end tell`;
+end tell`);
   }
 
   await runAppleScript(script);

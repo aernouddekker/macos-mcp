@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function listReminders(
   listName: string,
@@ -10,7 +10,7 @@ export async function listReminders(
     ? "every reminder of l"
     : "every reminder of l whose completed is false";
 
-  const script = `
+  const script = withLaunch("Reminders", `
 tell application "Reminders"
   set results to (every list whose name is "${n}")
   if (count of results) = 0 then
@@ -68,7 +68,7 @@ tell application "Reminders"
     set i to i + 1
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

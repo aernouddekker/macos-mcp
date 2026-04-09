@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function listLists(accountName?: string) {
   const aName = accountName ? escapeForAppleScript(accountName) : "";
@@ -11,7 +11,7 @@ export async function listLists(accountName?: string) {
   set targetLists to every list of (item 1 of acctResults)`
     : `set targetLists to every list`;
 
-  const script = `
+  const script = withLaunch("Reminders", `
 tell application "Reminders"
   ${targetBlock}
   set output to ""
@@ -41,7 +41,7 @@ tell application "Reminders"
     set output to output & lId & "${FIELD_SEP}" & lName & "${FIELD_SEP}" & lContainer & "${FIELD_SEP}" & lColor & "${FIELD_SEP}" & lEmblem & "${RECORD_SEP}"
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

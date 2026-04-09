@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 import { appleScriptDateHelper, isoToAppleScriptDate } from "../helpers/dates.js";
 
 export interface CreateReminderOptions {
@@ -43,7 +43,7 @@ export async function createReminder(
     props.push(`flagged:${opts.flagged}`);
   }
 
-  const script = `
+  const script = withLaunch("Reminders", `
 ${appleScriptDateHelper()}
 tell application "Reminders"
   set results to (every list whose name is "${ln}")
@@ -56,7 +56,7 @@ tell application "Reminders"
     set newReminder to make new reminder with properties {${props.join(", ")}}
   end tell
   return id of newReminder
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   const trimmed = raw.trim();

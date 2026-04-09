@@ -1,8 +1,8 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function showList(name: string) {
   const n = escapeForAppleScript(name);
-  const script = `
+  const script = withLaunch("Reminders", `
 tell application "Reminders"
   set results to (every list whose name is "${n}")
   if (count of results) = 0 then
@@ -11,7 +11,7 @@ tell application "Reminders"
   show (item 1 of results)
   activate
   return "ok"
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

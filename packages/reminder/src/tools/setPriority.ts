@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 import { findReminderById } from "../helpers/findById.js";
 
 // Reminders.app priority is an integer enum: 0=none, 1=high, 5=medium, 9=low.
@@ -15,12 +15,12 @@ export async function setPriority(id: string, priority: PriorityLevel) {
   const i = escapeForAppleScript(id);
   const value = PRIORITY_MAP[priority];
 
-  const script = `
+  const script = withLaunch("Reminders", `
 tell application "Reminders"
   ${findReminderById(i)}
   set priority of foundReminder to ${value}
   return "ok"
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

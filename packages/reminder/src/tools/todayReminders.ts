@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch } from "../lib/applescript.js";
 import { appendReminderRecord, REMINDER_RECORD_FIELDS, coerceReminderRecord } from "../helpers/reminderFields.js";
 
 export async function todayReminders(listName?: string, includeCompleted: boolean = false, limit: number = 100) {
@@ -12,7 +12,7 @@ export async function todayReminders(listName?: string, includeCompleted: boolea
   set targetLists to found`
     : `set targetLists to every list`;
 
-  const script = `
+  const script = withLaunch("Reminders", `
 tell application "Reminders"
   set startD to current date
   set hours of startD to 0
@@ -41,7 +41,7 @@ tell application "Reminders"
     end try
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

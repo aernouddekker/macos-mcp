@@ -1,11 +1,11 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 import { findReminderById } from "../helpers/findById.js";
 
 export async function moveReminder(id: string, targetList: string) {
   const i = escapeForAppleScript(id);
   const t = escapeForAppleScript(targetList);
 
-  const script = `
+  const script = withLaunch("Reminders", `
 tell application "Reminders"
   set targetResults to (every list whose name is "${t}")
   if (count of targetResults) = 0 then
@@ -17,7 +17,7 @@ tell application "Reminders"
 
   move foundReminder to targetL
   return "ok"
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   const trimmed = raw.trim();

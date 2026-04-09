@@ -1,9 +1,9 @@
-import { runAppleScript, escapeForAppleScript, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function searchByModificationDate(since: string, limit: number) {
   const escapedDate = escapeForAppleScript(since);
 
-  const script = `
+  const script = withLaunch("Contacts", `
 tell application "Contacts"
   set cutoffDate to date "${escapedDate}"
   set output to ""
@@ -20,7 +20,7 @@ tell application "Contacts"
     end if
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (!raw.trim()) {

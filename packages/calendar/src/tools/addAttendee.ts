@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function addAttendee(uid: string, email: string, displayName?: string) {
   const u = escapeForAppleScript(uid);
@@ -7,7 +7,7 @@ export async function addAttendee(uid: string, email: string, displayName?: stri
     ? `, display name:"${escapeForAppleScript(displayName)}"`
     : "";
 
-  const script = `
+  const script = withLaunch("Calendar", `
 tell application "Calendar"
   set foundEvent to missing value
   repeat with c in every calendar
@@ -26,7 +26,7 @@ tell application "Calendar"
     make new attendee with properties {email:"${em}"${nameProp}}
   end tell
   return "ok"
-end tell`;
+end tell`);
 
   const result = await runAppleScript(script);
   if (result.trim() === "NOT_FOUND") return null;

@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, FIELD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch, FIELD_SEP } from "../lib/applescript.js";
 
 export async function readMessage(
   account: string,
@@ -9,7 +9,7 @@ export async function readMessage(
   const mbox = escapeForAppleScript(mailbox);
   const msgId = escapeForAppleScript(messageId);
 
-  const script = `
+  const script = withLaunch("Mail", `
 tell application "Mail"
   set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${msgId}")
   if (count of msgs) is 0 then
@@ -25,7 +25,7 @@ tell application "Mail"
     set ccRecips to ccRecips & address of r & ","
   end repeat
   return (subject of m) & "${FIELD_SEP}" & (sender of m) & "${FIELD_SEP}" & toRecips & "${FIELD_SEP}" & ccRecips & "${FIELD_SEP}" & (date received of m as string) & "${FIELD_SEP}" & (content of m)
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw === "NOT_FOUND") {

@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function updateContact(
   contactId: string,
@@ -36,7 +36,7 @@ export async function updateContact(
   end if`
     : "";
 
-  const script = `
+  const script = withLaunch("Contacts", `
 tell application "Contacts"
   set results to (every person whose id is "${cId}")
   if (count of results) = 0 then
@@ -50,7 +50,7 @@ tell application "Contacts"
   ${phoneBlock}
   save
   return "ok"
-end tell`;
+end tell`);
 
   const result = await runAppleScript(script);
   if (result.trim() === "NOT_FOUND") {

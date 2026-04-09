@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 import { appleScriptDateHelper, isoToAppleScriptDate } from "../helpers/dates.js";
 
 // Search events by summary substring. Always bounded by a date window —
@@ -32,7 +32,7 @@ export async function searchEvents(
 
   // Batched per-calendar: pull uid/summary/start/end as parallel lists in
   // O(properties) AppleScript calls instead of O(events).
-  const script = `
+  const script = withLaunch("Calendar", `
 ${appleScriptDateHelper()}
 tell application "Calendar"
   ${calLoop}
@@ -81,7 +81,7 @@ tell application "Calendar"
     end try
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

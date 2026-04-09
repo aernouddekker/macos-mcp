@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function markAsJunk(
   account: string,
@@ -13,7 +13,7 @@ export async function markAsJunk(
   let updatedCount = 0;
   for (const msgId of messageIds) {
     const id = escapeForAppleScript(msgId);
-    const script = `
+    const script = withLaunch("Mail", `
 tell application "Mail"
   set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${id}")
   if (count of msgs) > 0 then
@@ -21,7 +21,7 @@ tell application "Mail"
     return "updated"
   end if
   return "not_found"
-end tell`;
+end tell`);
 
     const result = await runAppleScript(script);
     if (result === "updated") updatedCount++;

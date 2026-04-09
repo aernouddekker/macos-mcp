@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 // Note: Calendar.app calendars have no AppleScript-accessible id, so we
 // don't try to read it back. The calendar is identified by name everywhere.
@@ -7,11 +7,11 @@ export async function createCalendar(name: string, description?: string) {
   const descBlock = description !== undefined
     ? `, description:"${escapeForAppleScript(description)}"`
     : "";
-  const script = `
+  const script = withLaunch("Calendar", `
 tell application "Calendar"
   make new calendar with properties {name:"${n}"${descBlock}}
   return "ok"
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return { name, description, created: true };

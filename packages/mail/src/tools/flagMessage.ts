@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function flagMessage(
   account: string,
@@ -19,7 +19,7 @@ export async function flagMessage(
       : `set flagged status of item 1 of msgs to true
     set flag index of item 1 of msgs to ${flagIndex}`;
 
-    const script = `
+    const script = withLaunch("Mail", `
 tell application "Mail"
   set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${id}")
   if (count of msgs) > 0 then
@@ -27,7 +27,7 @@ tell application "Mail"
     return "updated"
   end if
   return "not_found"
-end tell`;
+end tell`);
 
     const result = await runAppleScript(script);
     if (result === "updated") updatedCount++;

@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function upcomingEvents(days: number = 7, calendarName?: string, limit: number = 100) {
   const cName = calendarName ? escapeForAppleScript(calendarName) : "";
@@ -11,7 +11,7 @@ export async function upcomingEvents(days: number = 7, calendarName?: string, li
   set targetCals to results`
     : `set targetCals to every calendar`;
 
-  const script = `
+  const script = withLaunch("Calendar", `
 tell application "Calendar"
   set startD to current date
   set endD to startD + (${days} * days)
@@ -55,7 +55,7 @@ tell application "Calendar"
     end try
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

@@ -1,7 +1,7 @@
-import { runAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function listMailboxes() {
-  const script = `
+  const script = withLaunch("Mail", `
 tell application "Mail"
   set output to ""
   repeat with acct in every account
@@ -11,7 +11,7 @@ tell application "Mail"
     end repeat
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   return parseRecords(raw, ["account", "mailbox", "unreadCount"]);

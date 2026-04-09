@@ -1,10 +1,10 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function renameGroup(groupName: string, newName: string) {
   const gName = escapeForAppleScript(groupName);
   const gNewName = escapeForAppleScript(newName);
 
-  const script = `
+  const script = withLaunch("Contacts", `
 tell application "Contacts"
   set groupResults to (every group whose name is "${gName}")
   if (count of groupResults) = 0 then
@@ -14,7 +14,7 @@ tell application "Contacts"
   set name of g to "${gNewName}"
   save
   return "renamed"
-end tell`;
+end tell`);
 
   const result = await runAppleScript(script);
   const trimmed = result.trim();

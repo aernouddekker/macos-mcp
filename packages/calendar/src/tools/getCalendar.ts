@@ -1,8 +1,8 @@
-import { runAppleScript, escapeForAppleScript, FIELD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch, FIELD_SEP } from "../lib/applescript.js";
 
 export async function getCalendar(name: string) {
   const n = escapeForAppleScript(name);
-  const script = `
+  const script = withLaunch("Calendar", `
 tell application "Calendar"
   set results to (every calendar whose name is "${n}")
   if (count of results) = 0 then
@@ -24,7 +24,7 @@ tell application "Calendar"
     set cCount to count of events of c
   end try
   return cName & "${FIELD_SEP}" & cWritable & "${FIELD_SEP}" & cDesc & "${FIELD_SEP}" & cCount
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

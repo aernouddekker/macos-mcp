@@ -1,8 +1,8 @@
-import { runAppleScript, escapeForAppleScript, FIELD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch, FIELD_SEP } from "../lib/applescript.js";
 
 export async function getEvent(uid: string) {
   const u = escapeForAppleScript(uid);
-  const script = `
+  const script = withLaunch("Calendar", `
 tell application "Calendar"
   set foundEvent to missing value
   set foundCal to ""
@@ -70,7 +70,7 @@ tell application "Calendar"
     set eSeq to (sequence of e) as string
   end try
   return "${u}" & "${FIELD_SEP}" & foundCal & "${FIELD_SEP}" & eSummary & "${FIELD_SEP}" & eLoc & "${FIELD_SEP}" & eDesc & "${FIELD_SEP}" & eStart & "${FIELD_SEP}" & eEnd & "${FIELD_SEP}" & eAllDay & "${FIELD_SEP}" & eStatus & "${FIELD_SEP}" & eUrl & "${FIELD_SEP}" & eRec & "${FIELD_SEP}" & eStamp & "${FIELD_SEP}" & eSeq
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

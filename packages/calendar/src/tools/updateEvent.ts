@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 import { appleScriptDateHelper, isoToAppleScriptDate } from "../helpers/dates.js";
 
 export interface UpdateEventFields {
@@ -37,7 +37,7 @@ export async function updateEvent(uid: string, fields: UpdateEventFields) {
     setLines.push(`set url of e to "${escapeForAppleScript(fields.url)}"`);
   }
 
-  const script = `
+  const script = withLaunch("Calendar", `
 ${appleScriptDateHelper()}
 tell application "Calendar"
   set foundEvent to missing value
@@ -56,7 +56,7 @@ tell application "Calendar"
   set e to foundEvent
   ${setLines.join("\n  ")}
   return "ok"
-end tell`;
+end tell`);
 
   const result = await runAppleScript(script);
   if (result.trim() === "NOT_FOUND") return null;

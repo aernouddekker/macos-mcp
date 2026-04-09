@@ -1,7 +1,7 @@
-import { runAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function listAccounts() {
-  const script = `
+  const script = withLaunch("Mail", `
 tell application "Mail"
   set output to ""
   repeat with acct in every account
@@ -16,7 +16,7 @@ tell application "Mail"
     set output to output & acctName & "${FIELD_SEP}" & acctFullName & "${FIELD_SEP}" & acctType & "${FIELD_SEP}" & acctEnabled & "${FIELD_SEP}" & acctEmails & "${RECORD_SEP}"
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   const records = parseRecords(raw, ["name", "fullName", "accountType", "enabled", "emails"]);

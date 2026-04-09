@@ -1,10 +1,10 @@
-import { runAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 // Note: Calendar.app's `calendar` class does not expose a usable id/uid via
 // AppleScript (raises -10000). Calendars are identified by name everywhere
 // in this server.
 export async function listCalendars() {
-  const script = `
+  const script = withLaunch("Calendar", `
 tell application "Calendar"
   set output to ""
   repeat with c in every calendar
@@ -24,7 +24,7 @@ tell application "Calendar"
     set output to output & cName & "${FIELD_SEP}" & cWritable & "${FIELD_SEP}" & cDesc & "${RECORD_SEP}"
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   const records = parseRecords(raw, ["name", "writable", "description"]);

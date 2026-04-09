@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 import { appleScriptDateHelper, isoToAppleScriptDate } from "../helpers/dates.js";
 
 export interface UpdateReminderFields {
@@ -37,7 +37,7 @@ export async function updateReminder(id: string, fields: UpdateReminderFields) {
     setLines.push(`set flagged of r to ${fields.flagged}`);
   }
 
-  const script = `
+  const script = withLaunch("Reminders", `
 ${appleScriptDateHelper()}
 tell application "Reminders"
   set foundReminder to missing value
@@ -56,7 +56,7 @@ tell application "Reminders"
   set r to foundReminder
   ${setLines.join("\n  ")}
   return "ok"
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

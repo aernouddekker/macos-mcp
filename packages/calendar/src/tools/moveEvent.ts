@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 /**
  * AppleScript cannot reparent an event between calendars directly. This tool
@@ -9,7 +9,7 @@ export async function moveEvent(uid: string, targetCalendar: string) {
   const u = escapeForAppleScript(uid);
   const t = escapeForAppleScript(targetCalendar);
 
-  const script = `
+  const script = withLaunch("Calendar", `
 tell application "Calendar"
   set targetResults to (every calendar whose name is "${t}")
   if (count of targetResults) = 0 then
@@ -64,7 +64,7 @@ tell application "Calendar"
 
   delete foundEvent
   return uid of newEvent
-end tell`;
+end tell`);
 
   const result = await runAppleScript(script);
   const trimmed = result.trim();

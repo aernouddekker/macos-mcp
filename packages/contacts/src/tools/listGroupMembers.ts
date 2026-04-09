@@ -1,10 +1,10 @@
-import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function listGroupMembers(groupName: string, limit = 100) {
   const gName = escapeForAppleScript(groupName);
   const maxCount = Math.floor(limit);
 
-  const script = `
+  const script = withLaunch("Contacts", `
 tell application "Contacts"
   set groupResults to (every group whose name is "${gName}")
   if (count of groupResults) = 0 then
@@ -29,7 +29,7 @@ tell application "Contacts"
     set i to i + 1
   end repeat
   return output
-end tell`;
+end tell`);
 
   const result = await runAppleScript(script);
   const trimmed = result.trim();

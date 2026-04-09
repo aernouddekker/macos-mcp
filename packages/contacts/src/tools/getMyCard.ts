@@ -1,7 +1,7 @@
-import { runAppleScript, FIELD_SEP } from "../lib/applescript.js";
+import { runAppleScript, withLaunch, FIELD_SEP } from "../lib/applescript.js";
 
 export async function getMyCard() {
-  const script = `
+  const script = withLaunch("Contacts", `
 tell application "Contacts"
   set p to my card
   set pId to id of p
@@ -19,7 +19,7 @@ tell application "Contacts"
     set pOrg to organization of p
   end try
   return pId & "${FIELD_SEP}" & pName & "${FIELD_SEP}" & pOrg & "${FIELD_SEP}" & pEmail & "${FIELD_SEP}" & pPhone
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   const parts = raw.split(FIELD_SEP);

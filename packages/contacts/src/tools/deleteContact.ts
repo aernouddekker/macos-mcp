@@ -1,9 +1,9 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function deleteContact(contactId: string) {
   const cId = escapeForAppleScript(contactId);
 
-  const script = `
+  const script = withLaunch("Contacts", `
 tell application "Contacts"
   set personResults to (every person whose id is "${cId}")
   if (count of personResults) = 0 then
@@ -13,7 +13,7 @@ tell application "Contacts"
   delete p
   save
   return "deleted"
-end tell`;
+end tell`);
 
   const result = await runAppleScript(script);
   const trimmed = result.trim();

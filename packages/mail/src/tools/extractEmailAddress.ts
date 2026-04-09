@@ -1,14 +1,14 @@
-import { runAppleScript, escapeForAppleScript, FIELD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch, FIELD_SEP } from "../lib/applescript.js";
 
 export async function extractEmailAddress(input: string) {
   const escaped = escapeForAppleScript(input);
 
-  const script = `
+  const script = withLaunch("Mail", `
 tell application "Mail"
   set addr to extract address from "${escaped}"
   set fullName to extract name from "${escaped}"
   return fullName & "${FIELD_SEP}" & addr
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   const sepIdx = raw.indexOf(FIELD_SEP);

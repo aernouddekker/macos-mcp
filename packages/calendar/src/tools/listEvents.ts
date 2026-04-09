@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 import { appleScriptDateHelper, isoToAppleScriptDate } from "../helpers/dates.js";
 
 export async function listEvents(
@@ -11,7 +11,7 @@ export async function listEvents(
   const startExpr = isoToAppleScriptDate(startDate);
   const endExpr = isoToAppleScriptDate(endDate);
 
-  const script = `
+  const script = withLaunch("Calendar", `
 ${appleScriptDateHelper()}
 tell application "Calendar"
   set results to (every calendar whose name is "${cName}")
@@ -57,7 +57,7 @@ tell application "Calendar"
     set i to i + 1
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

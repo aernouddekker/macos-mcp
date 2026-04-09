@@ -1,8 +1,8 @@
-import { runAppleScript, escapeForAppleScript, FIELD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch, FIELD_SEP } from "../lib/applescript.js";
 
 export async function getReminder(id: string) {
   const i = escapeForAppleScript(id);
-  const script = `
+  const script = withLaunch("Reminders", `
 tell application "Reminders"
   set foundReminder to missing value
   set foundList to ""
@@ -71,7 +71,7 @@ tell application "Reminders"
     set rFlagged to (flagged of r) as string
   end try
   return "${i}" & "${FIELD_SEP}" & foundList & "${FIELD_SEP}" & rName & "${FIELD_SEP}" & rBody & "${FIELD_SEP}" & rCompleted & "${FIELD_SEP}" & rCompletionDate & "${FIELD_SEP}" & rCreation & "${FIELD_SEP}" & rModification & "${FIELD_SEP}" & rDue & "${FIELD_SEP}" & rAllDayDue & "${FIELD_SEP}" & rRemind & "${FIELD_SEP}" & rPriority & "${FIELD_SEP}" & rFlagged
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

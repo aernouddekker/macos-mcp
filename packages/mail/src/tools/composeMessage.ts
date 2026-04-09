@@ -1,4 +1,4 @@
-import { runAppleScript, runJXA, escapeForAppleScript, jsLiteral } from "../lib/applescript.js";
+import { runAppleScript, runJXA, escapeForAppleScript, withLaunch, jsLiteral } from "../lib/applescript.js";
 
 export async function composeMessage(
   to: string[],
@@ -22,7 +22,7 @@ export async function composeMessage(
     .map((addr) => `make new cc recipient at end of cc recipients with properties {address:"${escapeForAppleScript(addr)}"}`)
     .join("\n    ");
 
-  const script = `
+  const script = withLaunch("Mail", `
 tell application "Mail"
   set newMsg to make new outgoing message with properties {subject:"${subj}", content:"${content}", visible:true}
   tell newMsg
@@ -30,7 +30,7 @@ tell application "Mail"
     ${ccRecipients}
   end tell
   return id of newMsg
-end tell`;
+end tell`);
 
   const msgId = await runAppleScript(script);
   return { outgoingMessageId: msgId.trim(), status: "draft_created" as const };

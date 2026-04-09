@@ -1,9 +1,9 @@
-import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function searchContacts(query: string, limit: number = 25) {
   const q = escapeForAppleScript(query);
 
-  const script = `
+  const script = withLaunch("Contacts", `
 tell application "Contacts"
   set matchedPeople to {}
   try
@@ -65,7 +65,7 @@ tell application "Contacts"
     set i to i + 1
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   return parseRecords(raw, ["id", "name", "organization", "email", "phone"]);

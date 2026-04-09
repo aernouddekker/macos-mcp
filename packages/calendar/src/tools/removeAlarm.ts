@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 /**
  * Remove an alarm by its 1-based index within the union of an event's
@@ -7,7 +7,7 @@ import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
  */
 export async function removeAlarm(uid: string, index: number) {
   const u = escapeForAppleScript(uid);
-  const script = `
+  const script = withLaunch("Calendar", `
 tell application "Calendar"
   set foundEvent to missing value
   repeat with c in every calendar
@@ -64,7 +64,7 @@ tell application "Calendar"
   else
     return "ALARM_NOT_FOUND"
   end if
-end tell`;
+end tell`);
 
   const result = await runAppleScript(script);
   const trimmed = result.trim();

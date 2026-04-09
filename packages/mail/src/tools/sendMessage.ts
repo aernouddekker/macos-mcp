@@ -1,4 +1,4 @@
-import { runAppleScript, runJXA, escapeForAppleScript, jsLiteral } from "../lib/applescript.js";
+import { runAppleScript, runJXA, escapeForAppleScript, withLaunch, jsLiteral } from "../lib/applescript.js";
 
 export async function sendMessage(
   to: string[],
@@ -30,7 +30,7 @@ export async function sendMessage(
     .map((path) => `make new attachment with properties {file name:POSIX file "${escapeForAppleScript(path)}"} at after the last paragraph`)
     .join("\n    ");
 
-  const script = `
+  const script = withLaunch("Mail", `
 tell application "Mail"
   set newMsg to make new outgoing message with properties {subject:"${subj}", content:"${content}", visible:false${senderProp}}
   tell newMsg
@@ -40,7 +40,7 @@ tell application "Mail"
   end tell
   send newMsg
   return "sent"
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return { status: "sent" as const };

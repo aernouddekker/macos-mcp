@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function listAttachments(
   account: string,
@@ -9,7 +9,7 @@ export async function listAttachments(
   const mbox = escapeForAppleScript(mailbox);
   const msgId = escapeForAppleScript(messageId);
 
-  const script = `
+  const script = withLaunch("Mail", `
 tell application "Mail"
   set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${msgId}")
   if (count of msgs) is 0 then return "NOT_FOUND"
@@ -19,7 +19,7 @@ tell application "Mail"
     set output to output & (name of att) & "${FIELD_SEP}" & (MIME type of att) & "${FIELD_SEP}" & (file size of att) & "${FIELD_SEP}" & (downloaded of att) & "${RECORD_SEP}"
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw === "NOT_FOUND") {

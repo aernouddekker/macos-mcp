@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch } from "../lib/applescript.js";
 import { appendReminderRecord, REMINDER_RECORD_FIELDS, coerceReminderRecord } from "../helpers/reminderFields.js";
 
 // Reminders due before now and not yet completed.
@@ -11,7 +11,7 @@ export async function overdueReminders(listName?: string, limit: number = 100) {
   set targetLists to found`
     : `set targetLists to every list`;
 
-  const script = `
+  const script = withLaunch("Reminders", `
 tell application "Reminders"
   set nowD to current date
 
@@ -36,7 +36,7 @@ tell application "Reminders"
     end try
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

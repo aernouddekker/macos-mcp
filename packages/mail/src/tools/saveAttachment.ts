@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -39,7 +39,7 @@ export async function saveAttachment(
   end repeat`;
   }
 
-  const script = `
+  const script = withLaunch("Mail", `
 tell application "Mail"
   set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${msgId}")
   if (count of msgs) is 0 then
@@ -48,7 +48,7 @@ tell application "Mail"
   set m to item 1 of msgs
 ${saveBlock}
   return savedFiles
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw === "NOT_FOUND") {

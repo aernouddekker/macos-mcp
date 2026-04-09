@@ -1,8 +1,8 @@
-import { runAppleScript, escapeForAppleScript, FIELD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch, FIELD_SEP } from "../lib/applescript.js";
 
 export async function getList(name: string) {
   const n = escapeForAppleScript(name);
-  const script = `
+  const script = withLaunch("Reminders", `
 tell application "Reminders"
   set results to (every list whose name is "${n}")
   if (count of results) = 0 then
@@ -36,7 +36,7 @@ tell application "Reminders"
     set doneCount to (count of (every reminder of l whose completed is true)) as string
   end try
   return lId & "${FIELD_SEP}" & lContainer & "${FIELD_SEP}" & lColor & "${FIELD_SEP}" & lEmblem & "${FIELD_SEP}" & openCount & "${FIELD_SEP}" & doneCount
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function redirectMessage(
   account: string,
@@ -20,7 +20,7 @@ export async function redirectMessage(
 
   const sendLine = sendImmediately ? "send redirMsg" : "";
 
-  const script = `
+  const script = withLaunch("Mail", `
 tell application "Mail"
   set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${msgId}")
   if (count of msgs) is 0 then
@@ -31,7 +31,7 @@ tell application "Mail"
 ${recipientLines}
   ${sendLine}
   return subject of redirMsg
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw === "NOT_FOUND") {

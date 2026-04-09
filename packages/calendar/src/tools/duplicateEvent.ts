@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function duplicateEvent(uid: string, targetCalendar?: string) {
   const u = escapeForAppleScript(uid);
@@ -12,7 +12,7 @@ export async function duplicateEvent(uid: string, targetCalendar?: string) {
   set targetCal to item 1 of targetResults`
     : `set targetCal to sourceCal`;
 
-  const script = `
+  const script = withLaunch("Calendar", `
 tell application "Calendar"
   set foundEvent to missing value
   set sourceCal to missing value
@@ -64,7 +64,7 @@ tell application "Calendar"
   end tell
 
   return uid of newEvent
-end tell`;
+end tell`);
 
   const result = await runAppleScript(script);
   const trimmed = result.trim();

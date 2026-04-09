@@ -1,9 +1,9 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function getVcard(contactId: string) {
   const cId = escapeForAppleScript(contactId);
 
-  const script = `
+  const script = withLaunch("Contacts", `
 tell application "Contacts"
   try
     set p to first person whose id is "${cId}"
@@ -11,7 +11,7 @@ tell application "Contacts"
   on error
     return "NOT_FOUND"
   end try
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") {

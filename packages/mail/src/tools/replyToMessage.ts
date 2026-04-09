@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function replyToMessage(
   account: string,
@@ -16,7 +16,7 @@ export async function replyToMessage(
   const replyCmd = replyAll ? "reply m replying to all" : "reply m";
   const sendCmd = sendImmediately ? "send replyMsg" : "";
 
-  const script = `
+  const script = withLaunch("Mail", `
 tell application "Mail"
   set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${msgId}")
   if (count of msgs) is 0 then
@@ -27,7 +27,7 @@ tell application "Mail"
   set content of replyMsg to "${content}" & return & return & (content of replyMsg)
   ${sendCmd}
   return subject of replyMsg
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw === "NOT_FOUND") {

@@ -1,7 +1,7 @@
-import { runAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function listGroups() {
-  const script = `
+  const script = withLaunch("Contacts", `
 tell application "Contacts"
   set output to ""
   repeat with g in every group
@@ -12,7 +12,7 @@ tell application "Contacts"
     set output to output & (id of g) & "${FIELD_SEP}" & (name of g) & "${FIELD_SEP}" & gCount & "${RECORD_SEP}"
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   const records = parseRecords(raw, ["id", "name", "memberCount"]);

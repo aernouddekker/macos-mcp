@@ -1,8 +1,8 @@
-import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function listAttendees(uid: string) {
   const u = escapeForAppleScript(uid);
-  const script = `
+  const script = withLaunch("Calendar", `
 tell application "Calendar"
   set foundEvent to missing value
   repeat with c in every calendar
@@ -38,7 +38,7 @@ tell application "Calendar"
     end repeat
   end try
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

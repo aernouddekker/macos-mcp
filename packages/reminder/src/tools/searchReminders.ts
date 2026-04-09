@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 // Substring match against reminder name. Optionally scoped to a single list
 // (recommended — `whose` filters are O(n) on Reminders.app stores too).
@@ -19,7 +19,7 @@ export async function searchReminders(
   set targetLists to found`
     : `set targetLists to every list`;
 
-  const script = `
+  const script = withLaunch("Reminders", `
 tell application "Reminders"
   ${targetBlock}
   set output to ""
@@ -59,7 +59,7 @@ tell application "Reminders"
     end try
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

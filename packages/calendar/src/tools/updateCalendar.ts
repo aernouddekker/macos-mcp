@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function updateCalendar(name: string, newName?: string, description?: string) {
   const n = escapeForAppleScript(name);
@@ -8,7 +8,7 @@ export async function updateCalendar(name: string, newName?: string, description
   const descBlock = description !== undefined
     ? `set description of c to "${escapeForAppleScript(description)}"`
     : "";
-  const script = `
+  const script = withLaunch("Calendar", `
 tell application "Calendar"
   set results to (every calendar whose name is "${n}")
   if (count of results) = 0 then
@@ -18,7 +18,7 @@ tell application "Calendar"
   ${nameBlock}
   ${descBlock}
   return "ok"
-end tell`;
+end tell`);
 
   const result = await runAppleScript(script);
   if (result.trim() === "NOT_FOUND") return null;

@@ -1,9 +1,9 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function addSoundAlarm(uid: string, minutesBefore: number, soundName: string) {
   const u = escapeForAppleScript(uid);
   const sn = escapeForAppleScript(soundName);
-  const script = `
+  const script = withLaunch("Calendar", `
 tell application "Calendar"
   set foundEvent to missing value
   repeat with c in every calendar
@@ -22,7 +22,7 @@ tell application "Calendar"
     make new sound alarm with properties {trigger interval:${-Math.abs(minutesBefore)}, sound name:"${sn}"}
   end tell
   return "ok"
-end tell`;
+end tell`);
 
   const result = await runAppleScript(script);
   if (result.trim() === "NOT_FOUND") return null;

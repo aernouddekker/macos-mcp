@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function createContact(
   firstName: string,
@@ -20,7 +20,7 @@ export async function createContact(
     ? `set organization of newPerson to "${escapeForAppleScript(organization)}"`
     : "";
 
-  const script = `
+  const script = withLaunch("Contacts", `
 tell application "Contacts"
   set newPerson to make new person with properties {first name:"${fName}", last name:"${lName}"}
   ${emailBlock}
@@ -28,7 +28,7 @@ tell application "Contacts"
   ${orgBlock}
   save
   return id of newPerson
-end tell`;
+end tell`);
 
   const id = await runAppleScript(script);
   return { id: id.trim(), firstName, lastName, email, phone, organization };

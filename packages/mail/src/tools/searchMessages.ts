@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function searchMessages(
   account: string,
@@ -14,7 +14,7 @@ export async function searchMessages(
     ? ` whose subject contains "${q}" or sender contains "${q}"`
     : "";
 
-  const script = `
+  const script = withLaunch("Mail", `
 tell application "Mail"
   set msgs to (messages of mailbox "${mbox}" of account "${acct}"${filter})
   set output to ""
@@ -26,7 +26,7 @@ tell application "Mail"
     set i to i + 1
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   return parseRecords(raw, ["id", "subject", "sender", "dateReceived", "isRead", "messageId"]);

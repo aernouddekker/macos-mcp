@@ -1,9 +1,9 @@
-import { runAppleScript, escapeForAppleScript, FIELD_SEP } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch, FIELD_SEP } from "../lib/applescript.js";
 
 export async function readContact(contactId: string) {
   const cId = escapeForAppleScript(contactId);
 
-  const script = `
+  const script = withLaunch("Contacts", `
 tell application "Contacts"
   set results to (every person whose id is "${cId}")
   if (count of results) = 0 then
@@ -53,7 +53,7 @@ tell application "Contacts"
     if pNote is "missing value" then set pNote to ""
   end try
   return pName & "${FIELD_SEP}" & pFirst & "${FIELD_SEP}" & pLast & "${FIELD_SEP}" & pOrg & "${FIELD_SEP}" & emailList & "${FIELD_SEP}" & phoneList & "${FIELD_SEP}" & addrList & "${FIELD_SEP}" & pNote
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") {
