@@ -70,7 +70,7 @@ Works with any open Numbers spreadsheet.
 | `set-cell-style` | Set font, color, background, bold, italic, alignment |
 | `export-document` | Export to PDF, Excel, or CSV |
 
-### Contacts (`contactsmcp`) — 15 tools
+### Contacts (`@aernoud/contactsmcp`) — 15 tools
 
 Works with the system address book — all accounts synced to Contacts.app.
 
@@ -191,7 +191,7 @@ Phone numbers are normalized + validated as E.164 (`+15551234567`); spaces, dash
 ```bash
 npm install -g mailappmcp            # Mail server
 npm install -g numbersmcp            # Numbers server
-npm install -g contactsmcp           # Contacts server
+npm install -g @aernoud/contactsmcp  # Contacts server
 npm install -g @aernoud/calendarmcp  # Calendar server
 npm install -g @aernoud/remindersmcp # Reminders server
 npm install -g @aernoud/printmcp     # Print server (CUPS)
@@ -218,7 +218,7 @@ Add to `~/.claude/settings.json` or your project's `.mcp.json`:
   "mcpServers": {
     "mailappmcp":   { "command": "npx", "args": ["-y", "mailappmcp"] },
     "numbersmcp":   { "command": "npx", "args": ["-y", "numbersmcp"] },
-    "contactsmcp":  { "command": "npx", "args": ["-y", "contactsmcp"] },
+    "contactsmcp":  { "command": "npx", "args": ["-y", "@aernoud/contactsmcp"] },
     "calendarmcp":  { "command": "npx", "args": ["-y", "@aernoud/calendarmcp"] },
     "remindersmcp": { "command": "npx", "args": ["-y", "@aernoud/remindersmcp"] },
     "printmcp":     { "command": "npx", "args": ["-y", "@aernoud/printmcp"] },
@@ -236,7 +236,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
   "mcpServers": {
     "mailappmcp":   { "command": "npx", "args": ["-y", "mailappmcp"] },
     "numbersmcp":   { "command": "npx", "args": ["-y", "numbersmcp"] },
-    "contactsmcp":  { "command": "npx", "args": ["-y", "contactsmcp"] },
+    "contactsmcp":  { "command": "npx", "args": ["-y", "@aernoud/contactsmcp"] },
     "calendarmcp":  { "command": "npx", "args": ["-y", "@aernoud/calendarmcp"] },
     "remindersmcp": { "command": "npx", "args": ["-y", "@aernoud/remindersmcp"] },
     "printmcp":     { "command": "npx", "args": ["-y", "@aernoud/printmcp"] },
