@@ -10,7 +10,7 @@ tell application "Mail"
     set acctEnabled to enabled of acct
     set acctEmails to ""
     repeat with addr in email addresses of acct
-      set acctEmails to acctEmails & addr & ","
+      set acctEmails to acctEmails & (contents of addr) & ","
     end repeat
     set acctFullName to full name of acct
     set output to output & acctName & "${FIELD_SEP}" & acctFullName & "${FIELD_SEP}" & acctType & "${FIELD_SEP}" & acctEnabled & "${FIELD_SEP}" & acctEmails & "${RECORD_SEP}"
