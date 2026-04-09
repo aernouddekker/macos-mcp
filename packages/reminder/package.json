@@ -1,6 +1,6 @@
 {
   "name": "@aernoud/remindermcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server for macOS Reminders.app — list/reminder management via AppleScript",
   "mcpName": "io.github.aernouddekker/remindermcp",
   "type": "module",

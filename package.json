@@ -1,8 +1,17 @@
 {
   "private": true,
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/mail",
+    "packages/numbers",
+    "packages/contacts",
+    "packages/calendar",
+    "packages/reminder",
+    "packages/print",
+    "packages/facetime"
+  ],
   "scripts": {
     "build": "npm run build --workspaces",
+    "prebuild": "./scripts/check-shared-drift.sh",
     "clean": "rm -rf packages/*/dist"
   }
 }
