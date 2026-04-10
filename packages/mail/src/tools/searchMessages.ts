@@ -22,7 +22,34 @@ tell application "Mail"
   set i to 0
   repeat with m in msgs
     if i >= maxCount then exit repeat
-    set output to output & (id of m) & "${FIELD_SEP}" & (subject of m) & "${FIELD_SEP}" & (sender of m) & "${FIELD_SEP}" & (date received of m as string) & "${FIELD_SEP}" & (read status of m) & "${FIELD_SEP}" & (message id of m) & "${RECORD_SEP}"
+    set mId to ""
+    try
+      set mId to (id of m) as string
+    end try
+    set mSubject to ""
+    try
+      set mSubject to subject of m as string
+      if mSubject is "missing value" then set mSubject to ""
+    end try
+    set mSender to ""
+    try
+      set mSender to sender of m as string
+      if mSender is "missing value" then set mSender to ""
+    end try
+    set mDate to ""
+    try
+      set mDate to (date received of m) as string
+    end try
+    set mRead to ""
+    try
+      set mRead to (read status of m) as string
+    end try
+    set mMsgId to ""
+    try
+      set mMsgId to message id of m as string
+      if mMsgId is "missing value" then set mMsgId to ""
+    end try
+    set output to output & mId & "${FIELD_SEP}" & mSubject & "${FIELD_SEP}" & mSender & "${FIELD_SEP}" & mDate & "${FIELD_SEP}" & mRead & "${FIELD_SEP}" & mMsgId & "${RECORD_SEP}"
     set i to i + 1
   end repeat
   return output

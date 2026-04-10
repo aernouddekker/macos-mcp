@@ -42,8 +42,14 @@ tell application "Contacts"
   set i to 0
   repeat with p in matchedPeople
     if i >= maxCount then exit repeat
-    set pId to id of p
-    set pName to name of p
+    set pId to ""
+    try
+      set pId to id of p as string
+    end try
+    set pName to ""
+    try
+      set pName to name of p as string
+    end try
     set pOrg to ""
     try
       set pOrg to organization of p as string

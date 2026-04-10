@@ -16,7 +16,25 @@ tell application "Mail"
   set m to item 1 of msgs
   set output to ""
   repeat with att in mail attachments of m
-    set output to output & (name of att) & "${FIELD_SEP}" & (MIME type of att) & "${FIELD_SEP}" & (file size of att) & "${FIELD_SEP}" & (downloaded of att) & "${RECORD_SEP}"
+    set aName to ""
+    try
+      set aName to name of att as string
+    end try
+    set aMime to ""
+    try
+      set aMime to MIME type of att as string
+      if aMime is "missing value" then set aMime to ""
+    end try
+    set aSize to ""
+    try
+      set aSize to (file size of att) as string
+      if aSize is "missing value" then set aSize to "0"
+    end try
+    set aDl to ""
+    try
+      set aDl to (downloaded of att) as string
+    end try
+    set output to output & aName & "${FIELD_SEP}" & aMime & "${FIELD_SEP}" & aSize & "${FIELD_SEP}" & aDl & "${RECORD_SEP}"
   end repeat
   return output
 end tell`);

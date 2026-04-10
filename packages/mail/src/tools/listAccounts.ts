@@ -5,14 +5,31 @@ export async function listAccounts() {
 tell application "Mail"
   set output to ""
   repeat with acct in every account
-    set acctName to name of acct
-    set acctType to account type of acct as string
-    set acctEnabled to enabled of acct
+    set acctName to ""
+    try
+      set acctName to name of acct as string
+    end try
+    set acctType to ""
+    try
+      set acctType to account type of acct as string
+    end try
+    set acctEnabled to ""
+    try
+      set acctEnabled to (enabled of acct) as string
+    end try
     set acctEmails to ""
-    repeat with addr in email addresses of acct
-      set acctEmails to acctEmails & (contents of addr) & ","
-    end repeat
-    set acctFullName to full name of acct
+    try
+      repeat with addr in email addresses of acct
+        try
+          set acctEmails to acctEmails & (contents of addr) & ","
+        end try
+      end repeat
+    end try
+    set acctFullName to ""
+    try
+      set acctFullName to full name of acct as string
+      if acctFullName is "missing value" then set acctFullName to ""
+    end try
     set output to output & acctName & "${FIELD_SEP}" & acctFullName & "${FIELD_SEP}" & acctType & "${FIELD_SEP}" & acctEnabled & "${FIELD_SEP}" & acctEmails & "${RECORD_SEP}"
   end repeat
   return output

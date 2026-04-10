@@ -7,10 +7,27 @@ tell application "Numbers"
   tell document "${docEsc}"
     set output to ""
     repeat with s in every sheet
-      set sheetName to name of s
-      repeat with t in every table of s
-        set output to output & sheetName & "|||" & (name of t) & "|||" & (row count of t) & "|||" & (column count of t) & "~~~"
-      end repeat
+      set sheetName to ""
+      try
+        set sheetName to name of s as string
+      end try
+      try
+        repeat with t in every table of s
+          set tName to ""
+          try
+            set tName to name of t as string
+          end try
+          set tRows to ""
+          try
+            set tRows to (row count of t) as string
+          end try
+          set tCols to ""
+          try
+            set tCols to (column count of t) as string
+          end try
+          set output to output & sheetName & "|||" & tName & "|||" & tRows & "|||" & tCols & "~~~"
+        end repeat
+      end try
     end repeat
   end tell
   return output

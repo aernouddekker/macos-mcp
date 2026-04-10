@@ -44,11 +44,17 @@ tell application "Numbers"
     set output to ""
     repeat with r from ${startRow} to ${endRow}
       repeat with c from ${startCol} to ${endCol}
-        set cellVal to value of cell c of row r
-        if cellVal is missing value then
+        set cellVal to ""
+        try
+          set cellVal to value of cell c of row r
+          if cellVal is missing value then
+            set cellVal to ""
+          end if
+          set cellVal to cellVal as text
+        on error
           set cellVal to ""
-        end if
-        set output to output & (cellVal as text) & "|||"
+        end try
+        set output to output & cellVal & "|||"
       end repeat
       set output to output & "~~~"
     end repeat

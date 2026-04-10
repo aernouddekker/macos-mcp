@@ -5,10 +5,23 @@ export async function listMailboxes() {
 tell application "Mail"
   set output to ""
   repeat with acct in every account
-    set acctName to name of acct
-    repeat with mbox in every mailbox of acct
-      set output to output & acctName & "${FIELD_SEP}" & name of mbox & "${FIELD_SEP}" & (count of (messages of mbox whose read status is false)) & "${RECORD_SEP}"
-    end repeat
+    set acctName to ""
+    try
+      set acctName to name of acct as string
+    end try
+    try
+      repeat with mbox in every mailbox of acct
+        set mboxName to ""
+        try
+          set mboxName to name of mbox as string
+        end try
+        set unreadCount to "0"
+        try
+          set unreadCount to (count of (messages of mbox whose read status is false)) as string
+        end try
+        set output to output & acctName & "${FIELD_SEP}" & mboxName & "${FIELD_SEP}" & unreadCount & "${RECORD_SEP}"
+      end repeat
+    end try
   end repeat
   return output
 end tell`);

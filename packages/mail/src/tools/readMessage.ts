@@ -17,14 +17,41 @@ tell application "Mail"
   end if
   set m to item 1 of msgs
   set toRecips to ""
-  repeat with r in to recipients of m
-    set toRecips to toRecips & address of r & ","
-  end repeat
+  try
+    repeat with r in to recipients of m
+      try
+        set toRecips to toRecips & address of r & ","
+      end try
+    end repeat
+  end try
   set ccRecips to ""
-  repeat with r in cc recipients of m
-    set ccRecips to ccRecips & address of r & ","
-  end repeat
-  return (subject of m) & "${FIELD_SEP}" & (sender of m) & "${FIELD_SEP}" & toRecips & "${FIELD_SEP}" & ccRecips & "${FIELD_SEP}" & (date received of m as string) & "${FIELD_SEP}" & (content of m)
+  try
+    repeat with r in cc recipients of m
+      try
+        set ccRecips to ccRecips & address of r & ","
+      end try
+    end repeat
+  end try
+  set mSubject to ""
+  try
+    set mSubject to subject of m as string
+    if mSubject is "missing value" then set mSubject to ""
+  end try
+  set mSender to ""
+  try
+    set mSender to sender of m as string
+    if mSender is "missing value" then set mSender to ""
+  end try
+  set mDate to ""
+  try
+    set mDate to (date received of m) as string
+  end try
+  set mContent to ""
+  try
+    set mContent to content of m as string
+    if mContent is "missing value" then set mContent to ""
+  end try
+  return mSubject & "${FIELD_SEP}" & mSender & "${FIELD_SEP}" & toRecips & "${FIELD_SEP}" & ccRecips & "${FIELD_SEP}" & mDate & "${FIELD_SEP}" & mContent
 end tell`);
 
   const raw = await runAppleScript(script);

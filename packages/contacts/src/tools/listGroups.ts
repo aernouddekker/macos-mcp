@@ -5,11 +5,19 @@ export async function listGroups() {
 tell application "Contacts"
   set output to ""
   repeat with g in every group
+    set gId to ""
+    try
+      set gId to id of g as string
+    end try
+    set gName to ""
+    try
+      set gName to name of g as string
+    end try
     set gCount to 0
     try
       set gCount to count of people of g
     end try
-    set output to output & (id of g) & "${FIELD_SEP}" & (name of g) & "${FIELD_SEP}" & gCount & "${RECORD_SEP}"
+    set output to output & gId & "${FIELD_SEP}" & gName & "${FIELD_SEP}" & gCount & "${RECORD_SEP}"
   end repeat
   return output
 end tell`);

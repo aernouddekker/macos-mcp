@@ -4,8 +4,14 @@ export async function getMyCard() {
   const script = withLaunch("Contacts", `
 tell application "Contacts"
   set p to my card
-  set pId to id of p
-  set pName to name of p
+  set pId to ""
+  try
+    set pId to id of p as string
+  end try
+  set pName to ""
+  try
+    set pName to name of p as string
+  end try
   set pEmail to ""
   try
     set pEmail to value of first email of p

@@ -5,7 +5,16 @@ export async function listSignatures() {
 tell application "Mail"
   set output to ""
   repeat with sig in every signature
-    set output to output & (name of sig) & "${FIELD_SEP}" & (content of sig) & "${RECORD_SEP}"
+    set sigName to ""
+    try
+      set sigName to name of sig as string
+    end try
+    set sigContent to ""
+    try
+      set sigContent to content of sig as string
+      if sigContent is "missing value" then set sigContent to ""
+    end try
+    set output to output & sigName & "${FIELD_SEP}" & sigContent & "${RECORD_SEP}"
   end repeat
   return output
 end tell`);

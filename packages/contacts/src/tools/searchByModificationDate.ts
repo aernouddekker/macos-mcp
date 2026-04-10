@@ -11,13 +11,24 @@ tell application "Contacts"
   set maxLimit to ${limit}
   repeat with p in every person
     if i >= maxLimit then exit repeat
-    if modification date of p > cutoffDate then
-      set pId to id of p
-      set pName to name of p
-      set modDate to modification date of p as string
-      set output to output & pId & "${FIELD_SEP}" & pName & "${FIELD_SEP}" & modDate & "${RECORD_SEP}"
-      set i to i + 1
-    end if
+    try
+      if modification date of p > cutoffDate then
+        set pId to ""
+        try
+          set pId to id of p as string
+        end try
+        set pName to ""
+        try
+          set pName to name of p as string
+        end try
+        set modDate to ""
+        try
+          set modDate to (modification date of p) as string
+        end try
+        set output to output & pId & "${FIELD_SEP}" & pName & "${FIELD_SEP}" & modDate & "${RECORD_SEP}"
+        set i to i + 1
+      end if
+    end try
   end repeat
   return output
 end tell`);
