@@ -1,6 +1,6 @@
 {
   "name": "@aernoud/calendarmcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "MCP server for macOS Calendar.app — calendar/event management via AppleScript",
   "mcpName": "io.github.aernouddekker/calendarmcp",
   "type": "module",
