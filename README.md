@@ -249,6 +249,17 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 Each server runs locally over stdio. The Mail, Numbers, and Contacts servers build AppleScript strings, execute them via `osascript`, and parse the structured output back into JSON. The Print server shells out to CUPS (`lp`, `lpstat`, `lpoptions`, `cancel`); the FaceTime server hands `tel://` / `facetime://` URLs to `open`. A shared package (`@mailappmcp/shared`) provides the AppleScript runner, the generic command runner (`runCommand`), string escaping, and delimiter-based parsing.
 
+### App lifecycle — leave as found
+
+Mail, Calendar, Contacts, and Reminders need their respective app running to respond to AppleScript. Rather than requiring you to keep those apps open, each server auto-launches them on first use and cleans up afterwards:
+
+- **On the first tool call that touches an app**, the server checks (via `pgrep`) whether the app is already running. If not, it launches it in the background (`open -g -a`) without stealing focus, and waits up to 5 seconds for the app to accept AppleEvents before running the tool.
+- **That state is remembered in-process** for the lifetime of the MCP server. Subsequent tool calls against the same app skip the probe and reuse the running app — no repeated launch penalty.
+- **On server shutdown** (SIGTERM / SIGINT / SIGHUP / normal exit — e.g. when Claude Desktop disconnects the server or the chat ends), the server quits only the apps **it launched**. Apps you had open before the server started are left alone.
+- Edge case: if the server is force-killed (`SIGKILL`), the exit handler can't run, so any auto-launched apps stay running. Same as if you'd never had the server.
+
+This means you can use the tools without worrying about a pile of half-launched apps lingering after the session, and without the servers killing apps you were actively using.
+
 ### Safety
 
 - `compose-message` opens a visible draft — you review before sending
@@ -277,7 +288,7 @@ Under the hood, the HTML path uses JXA (`osascript -l JavaScript`) and Mail.app'
 ### General
 
 - `osascript` has a 30-second timeout per call
-- Apps must be running (or will be auto-launched by AppleScript)
+- Apps are auto-launched on first use and quit on server shutdown if they weren't running beforehand — see [App lifecycle](#app-lifecycle--leave-as-found)
 
 ### Mail
 - `content contains` searches in AppleScript can be slow on large mailboxes — Mail server searches subject and sender by default
