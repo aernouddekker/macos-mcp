@@ -6,42 +6,68 @@ export async function searchContacts(query: string, limit: number = 25) {
   const script = withLaunch("Contacts", `
 tell application "Contacts"
   set matchedPeople to {}
+  set seenIds to {}
+
+  set maxCount to ${limit}
+
   try
     set nameMatches to (every person whose name contains "${q}")
     repeat with p in nameMatches
-      set end of matchedPeople to p
+      if (count of matchedPeople) is greater than or equal to maxCount then exit repeat
+      set pId to id of p as string
+      if seenIds does not contain pId then
+        set end of seenIds to pId
+        set end of matchedPeople to contents of p
+      end if
     end repeat
   end try
-  if (count of matchedPeople) = 0 then
+
+  if (count of matchedPeople) < maxCount then
     try
-      set allPeople to every person
-      repeat with p in allPeople
-        set found to false
-        repeat with e in emails of p
-          if value of e contains "${q}" then
-            set found to true
-            exit repeat
-          end if
-        end repeat
-        if not found then
-          repeat with ph in phones of p
-            if value of ph contains "${q}" then
-              set found to true
-              exit repeat
-            end if
-          end repeat
-        end if
-        if found then
-          set end of matchedPeople to p
+      set orgMatches to (every person whose organization contains "${q}")
+      repeat with p in orgMatches
+        if (count of matchedPeople) is greater than or equal to maxCount then exit repeat
+        set pId to id of p as string
+        if seenIds does not contain pId then
+          set end of seenIds to pId
+          set end of matchedPeople to contents of p
         end if
       end repeat
     end try
   end if
+
+  if (count of matchedPeople) < maxCount then
+    try
+      set emailMatches to (every person whose (count of (emails whose value contains "${q}")) > 0)
+      repeat with p in emailMatches
+        if (count of matchedPeople) is greater than or equal to maxCount then exit repeat
+        set pId to id of p as string
+        if seenIds does not contain pId then
+          set end of seenIds to pId
+          set end of matchedPeople to contents of p
+        end if
+      end repeat
+    end try
+  end if
+
+  if (count of matchedPeople) < maxCount then
+    try
+      set phoneMatches to (every person whose (count of (phones whose value contains "${q}")) > 0)
+      repeat with p in phoneMatches
+        if (count of matchedPeople) is greater than or equal to maxCount then exit repeat
+        set pId to id of p as string
+        if seenIds does not contain pId then
+          set end of seenIds to pId
+          set end of matchedPeople to contents of p
+        end if
+      end repeat
+    end try
+  end if
+
   set output to ""
-  set maxCount to ${limit}
   set i to 0
   repeat with p in matchedPeople
-    if i >= maxCount then exit repeat
+    if i is greater than or equal to maxCount then exit repeat
     set pId to ""
     try
       set pId to id of p as string
@@ -73,6 +99,11 @@ tell application "Contacts"
   return output
 end tell`);
 
-  const raw = await runAppleScript(script);
+  let raw: string;
+  try {
+    raw = await runAppleScript(script);
+  } catch {
+    return [];
+  }
   return parseRecords(raw, ["id", "name", "organization", "email", "phone"]);
 }

@@ -1,4 +1,30 @@
 import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
+import type { AddressInput } from "./createContact.js";
+
+function buildAddressUpdateBlock(address: AddressInput): string {
+  const setters: string[] = [];
+  setters.push(`set label of existingAddr to "${escapeForAppleScript(address.label ?? "work")}"`);
+  if (address.street !== undefined) setters.push(`set street of existingAddr to "${escapeForAppleScript(address.street)}"`);
+  if (address.city !== undefined) setters.push(`set city of existingAddr to "${escapeForAppleScript(address.city)}"`);
+  if (address.state !== undefined) setters.push(`set state of existingAddr to "${escapeForAppleScript(address.state)}"`);
+  if (address.zip !== undefined) setters.push(`set zip of existingAddr to "${escapeForAppleScript(address.zip)}"`);
+  if (address.country !== undefined) setters.push(`set country of existingAddr to "${escapeForAppleScript(address.country)}"`);
+
+  const newProps: string[] = [`label:"${escapeForAppleScript(address.label ?? "work")}"`];
+  if (address.street) newProps.push(`street:"${escapeForAppleScript(address.street)}"`);
+  if (address.city) newProps.push(`city:"${escapeForAppleScript(address.city)}"`);
+  if (address.state) newProps.push(`state:"${escapeForAppleScript(address.state)}"`);
+  if (address.zip) newProps.push(`zip:"${escapeForAppleScript(address.zip)}"`);
+  if (address.country) newProps.push(`country:"${escapeForAppleScript(address.country)}"`);
+
+  return `
+  if (count of addresses of p) > 0 then
+    set existingAddr to first address of p
+    ${setters.join("\n    ")}
+  else
+    make new address at end of addresses of p with properties {${newProps.join(", ")}}
+  end if`;
+}
 
 export async function updateContact(
   contactId: string,
@@ -7,6 +33,7 @@ export async function updateContact(
   email?: string,
   phone?: string,
   organization?: string,
+  address?: AddressInput,
 ) {
   const cId = escapeForAppleScript(contactId);
 
@@ -35,6 +62,7 @@ export async function updateContact(
     make new phone at end of phones of p with properties {label:"mobile", value:"${escapeForAppleScript(phone)}"}
   end if`
     : "";
+  const addressBlock = address !== undefined ? buildAddressUpdateBlock(address) : "";
 
   const script = withLaunch("Contacts", `
 tell application "Contacts"
@@ -48,6 +76,7 @@ tell application "Contacts"
   ${orgBlock}
   ${emailBlock}
   ${phoneBlock}
+  ${addressBlock}
   save
   return "ok"
 end tell`);
@@ -56,5 +85,5 @@ end tell`);
   if (result.trim() === "NOT_FOUND") {
     return null;
   }
-  return { contactId, updated: { firstName, lastName, email, phone, organization } };
+  return { contactId, updated: { firstName, lastName, email, phone, organization, address } };
 }

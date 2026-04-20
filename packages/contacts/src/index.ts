@@ -52,6 +52,17 @@ server.tool(
   },
 );
 
+const addressSchema = z
+  .object({
+    label: z.string().optional().describe("Address label, e.g. 'home' or 'work' (default: 'work')"),
+    street: z.string().optional().describe("Street line(s); embed '\\n' for multi-line"),
+    city: z.string().optional().describe("City"),
+    state: z.string().optional().describe("State / province / region"),
+    zip: z.string().optional().describe("Postal / ZIP code"),
+    country: z.string().optional().describe("Country name"),
+  })
+  .describe("Postal address fields (all optional; at least one field should be set)");
+
 server.tool(
   "create-contact",
   "Create a new contact in macOS Contacts.app",
@@ -61,9 +72,10 @@ server.tool(
     email: z.string().optional().describe("Email address"),
     phone: z.string().optional().describe("Phone number"),
     organization: z.string().optional().describe("Organization / company name"),
+    address: addressSchema.optional(),
   },
-  async ({ firstName, lastName, email, phone, organization }) => {
-    const result = await createContact(firstName, lastName, email, phone, organization);
+  async ({ firstName, lastName, email, phone, organization, address }) => {
+    const result = await createContact(firstName, lastName, email, phone, organization, address);
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   },
 );
@@ -78,9 +90,10 @@ server.tool(
     email: z.string().optional().describe("New primary email address"),
     phone: z.string().optional().describe("New primary phone number"),
     organization: z.string().optional().describe("New organization / company name"),
+    address: addressSchema.optional().describe("Updates (or adds) the primary postal address"),
   },
-  async ({ contactId, firstName, lastName, email, phone, organization }) => {
-    const result = await updateContact(contactId, firstName, lastName, email, phone, organization);
+  async ({ contactId, firstName, lastName, email, phone, organization, address }) => {
+    const result = await updateContact(contactId, firstName, lastName, email, phone, organization, address);
     if (!result) {
       return { content: [{ type: "text", text: "Contact not found." }] };
     }
