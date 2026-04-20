@@ -13,7 +13,9 @@ export async function replyToMessage(
   const msgId = escapeForAppleScript(messageId);
   const content = escapeForAppleScript(body);
 
-  const replyCmd = replyAll ? "reply m replying to all" : "reply m";
+  const replyParams = replyAll
+    ? "with opening window, reply to all"
+    : "with opening window";
   const sendCmd = sendImmediately ? "send replyMsg" : "";
 
   const script = withLaunch("Mail", `
@@ -23,8 +25,12 @@ tell application "Mail"
     return "NOT_FOUND"
   end if
   set m to item 1 of msgs
-  set replyMsg to ${replyCmd} with opening window
-  set content of replyMsg to "${content}" & return & return & (content of replyMsg)
+  set replyMsg to reply m ${replyParams}
+  set origBody to ""
+  try
+    set origBody to (content of replyMsg) as text
+  end try
+  set content of replyMsg to "${content}" & linefeed & linefeed & origBody
   ${sendCmd}
   return subject of replyMsg
 end tell`);
