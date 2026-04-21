@@ -80,10 +80,11 @@ server.tool(
     subject: z.string().describe("Email subject"),
     body: z.string().describe("Email body as plain text (also used as the plain-text fallback when htmlBody is supplied)"),
     cc: z.array(z.string()).optional().describe("CC email addresses"),
+    attachments: z.array(z.string()).optional().describe("Absolute file paths to attach"),
     htmlBody: z.string().optional().describe("Optional HTML body. When set, the draft is created as a rich-text/HTML message and the recipient sees rendered formatting. Backward compatible: omit to send as plain text."),
   },
-  async ({ to, subject, body, cc, htmlBody }) => {
-    const result = await composeMessage(to, subject, body, cc, htmlBody);
+  async ({ to, subject, body, cc, attachments, htmlBody }) => {
+    const result = await composeMessage(to, subject, body, cc, attachments, htmlBody);
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   },
 );
@@ -116,9 +117,10 @@ server.tool(
     body: z.string().describe("Reply body text"),
     replyAll: z.boolean().optional().default(false).describe("Reply to all recipients"),
     sendImmediately: z.boolean().optional().default(false).describe("Send immediately instead of opening as draft"),
+    attachments: z.array(z.string()).optional().describe("Absolute file paths to attach"),
   },
-  async ({ account, mailbox, messageId, body, replyAll, sendImmediately }) => {
-    const result = await replyToMessage(account, mailbox, messageId, body, replyAll, sendImmediately);
+  async ({ account, mailbox, messageId, body, replyAll, sendImmediately, attachments }) => {
+    const result = await replyToMessage(account, mailbox, messageId, body, replyAll, sendImmediately, attachments);
     if (!result) {
       return { content: [{ type: "text", text: "Original message not found." }] };
     }

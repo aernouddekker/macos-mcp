@@ -20,9 +20,9 @@ Works with every email account configured in Mail.app — iCloud, Gmail, Outlook
 | `get-message-source` | Get raw RFC822 source of a message |
 | `list-attachments` | List attachments on a message with name, MIME type, size |
 | `save-attachment` | Save email attachments to disk |
-| `compose-message` | Create a draft in Mail.app (does **not** send) — supports plain or HTML body via `htmlBody` |
+| `compose-message` | Create a draft in Mail.app (does **not** send) — supports plain or HTML body via `htmlBody`, plus attachments |
 | `send-message` | Send an email immediately (supports `from`, attachments, plain or HTML body via `htmlBody`) |
-| `reply-to-message` | Reply or reply-all to a message |
+| `reply-to-message` | Reply or reply-all to a message (supports attachments) |
 | `forward-message` | Forward a message to new recipients |
 | `redirect-message` | Redirect a message (preserves original sender) |
 | `move-messages` | Move messages between mailboxes |

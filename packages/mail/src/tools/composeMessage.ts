@@ -5,10 +5,11 @@ export async function composeMessage(
   subject: string,
   body: string,
   cc?: string[],
+  attachments?: string[],
   htmlBody?: string,
 ) {
   if (htmlBody !== undefined) {
-    return composeHtmlMessage(to, subject, body, cc, htmlBody);
+    return composeHtmlMessage(to, subject, body, cc, attachments, htmlBody);
   }
 
   const subj = escapeForAppleScript(subject);
@@ -22,12 +23,17 @@ export async function composeMessage(
     .map((addr) => `make new cc recipient at end of cc recipients with properties {address:"${escapeForAppleScript(addr)}"}`)
     .join("\n    ");
 
+  const attachmentLines = (attachments ?? [])
+    .map((path) => `make new attachment with properties {file name:POSIX file "${escapeForAppleScript(path)}"} at after the last paragraph`)
+    .join("\n    ");
+
   const script = withLaunch("Mail", `
 tell application "Mail"
   set newMsg to make new outgoing message with properties {subject:"${subj}", content:"${content}", visible:true}
   tell newMsg
     ${toRecipients}
     ${ccRecipients}
+    ${attachmentLines}
   end tell
   return id of newMsg
 end tell`);
@@ -41,6 +47,7 @@ async function composeHtmlMessage(
   subject: string,
   body: string,
   cc: string[] | undefined,
+  attachments: string[] | undefined,
   htmlBody: string,
 ) {
   // JXA path: Mail.app's outgoing message exposes an `htmlContent` setter
@@ -62,6 +69,9 @@ ${jsLiteral(to)}.forEach(function(addr) {
 });
 ${jsLiteral(cc ?? [])}.forEach(function(addr) {
   msg.ccRecipients.push(Mail.CcRecipient({address: addr}));
+});
+${jsLiteral(attachments ?? [])}.forEach(function(p) {
+  msg.content.attachments.push(Mail.Attachment({fileName: Path(p)}));
 });
 msg.id();
 `;
