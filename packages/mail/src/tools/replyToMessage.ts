@@ -18,11 +18,37 @@ export async function replyToMessage(
     ? "with opening window, reply to all"
     : "with opening window";
 
-  const attachmentLines = (attachments ?? [])
-    .map((path) => `    make new attachment with properties {file name:POSIX file "${escapeForAppleScript(path)}"} at after the last paragraph`)
-    .join("\n");
-  const attachmentBlock = attachmentLines
-    ? `tell replyMsg\n${attachmentLines}\n  end tell`
+  const hasAttachments = (attachments ?? []).length > 0;
+  const attachmentPasteSteps = hasAttachments
+    ? [
+        // Cursor-to-end once before the first attachment so files land after
+        // the quoted thread, matching the original `at after the last
+        // paragraph` intent.
+        `tell application "System Events"
+  tell process "Mail"
+    if frontmost is false then
+      error "Mail lost focus before attachment — aborting"
+    end if
+    key code 125 using command down
+    delay 0.2
+  end tell
+end tell`,
+        ...(attachments ?? []).map((path) => {
+          const escaped = escapeForAppleScript(path);
+          return `
+set the clipboard to (POSIX file "${escaped}")
+delay 0.15
+tell application "System Events"
+  tell process "Mail"
+    if frontmost is false then
+      error "Mail lost focus before attachment paste — aborting"
+    end if
+    keystroke "v" using command down
+    delay 0.3
+  end tell
+end tell`;
+        }),
+      ].join("\n")
     : "";
 
   const sendBlock = sendImmediately
@@ -36,6 +62,12 @@ export async function replyToMessage(
   // above the auto-quoted thread, so one Cmd-V inserts our text without
   // disturbing the quoted section, signature, or In-Reply-To / References
   // headers set by the `reply` verb.
+  //
+  // `make new attachment` has the same rich-text-clobber problem on replies
+  // (verified empirically — it wipes the quoted thread even when invoked
+  // without an `at` clause), so attachments also go through the pasteboard:
+  // each path is put on the clipboard as a `POSIX file` and pasted into the
+  // draft, which attaches the file without resetting the editor.
   const script = withLaunch("Mail", `
 tell application "Mail"
   set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${msgId}")
@@ -44,7 +76,6 @@ tell application "Mail"
   end if
   set m to item 1 of msgs
   set replyMsg to reply m ${replyParams}
-  ${attachmentBlock}
 end tell
 
 set savedClip to ""
@@ -68,6 +99,7 @@ try
       delay 0.3
     end tell
   end tell
+  ${attachmentPasteSteps}
 on error errText
   set pasteErr to errText
 end try
