@@ -1,5 +1,13 @@
 import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
+// TODO: forward shares the outgoing-message rich-text-editor desync that
+// reply hits — `set content of fwdMsg to "..." & (content of fwdMsg)` will
+// clear the auto-quoted body the same way it did for reply (see commits
+// 912a2c9 / 3f874df on replyToMessage). Not fixed here because forward is
+// rarely called with a custom body, and even more rarely with attachments
+// (tool doesn't accept an `attachments` parameter today). If we add one, or
+// if a user reports blank-forward drafts, port the pasteboard + Cmd-V
+// recipe from replyToMessage.ts wholesale.
 export async function forwardMessage(
   account: string,
   mailbox: string,
