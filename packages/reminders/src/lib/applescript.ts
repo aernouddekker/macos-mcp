@@ -3,10 +3,11 @@ import { execFileSync } from "node:child_process";
 export * from "./applescript-core.js";
 
 // Leave-as-found tracking: remember which apps we launched (vs. were
-// already running), and quit only those on server shutdown. State is
-// per-server-process, checked lazily on the first withLaunch() call
-// for each app so the probe cost is paid once per session.
-const touchedApps = new Set<string>();
+// already running), and quit only those on server shutdown. The probe
+// runs on every withLaunch() call — pgrep is cheap, and the check has
+// to repeat because the user can manually quit the app between calls,
+// in which case the next call relaunches it and we need to mark it as
+// ours-to-quit.
 const launchedByUs = new Set<string>();
 let exitHandlersInstalled = false;
 
@@ -23,7 +24,7 @@ function quitLaunchedApps(): void {
   for (const app of launchedByUs) {
     try {
       execFileSync("osascript", ["-e", `tell application "${app}" to quit`], {
-        timeout: 5000,
+        timeout: 10000,
         stdio: "ignore",
       });
     } catch {
@@ -46,12 +47,9 @@ function installExitHandlers(): void {
 }
 
 export function withLaunch(app: string, body: string): string {
-  if (!touchedApps.has(app)) {
-    touchedApps.add(app);
-    if (!isAppRunning(app)) {
-      launchedByUs.add(app);
-    }
-    installExitHandlers();
+  installExitHandlers();
+  if (!isAppRunning(app)) {
+    launchedByUs.add(app);
   }
   return `do shell script "open -g -a ${app}"
 repeat 50 times
