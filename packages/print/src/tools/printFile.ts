@@ -6,6 +6,7 @@ export interface PrintFileOptions {
   filePath: string;
   printer?: string;
   copies?: number;
+  collate?: boolean;
   duplex?: "one-sided" | "long-edge" | "short-edge";
   media?: string;
   pageRanges?: string;
@@ -35,6 +36,7 @@ export async function printFile(opts: PrintFileOptions): Promise<PrintFileResult
   const args: string[] = [];
   if (opts.printer) args.push("-d", opts.printer);
   if (opts.copies && opts.copies > 1) args.push("-n", String(opts.copies));
+  if (opts.collate !== undefined) args.push("-o", `Collate=${opts.collate ? "True" : "False"}`);
   if (opts.jobTitle) args.push("-t", opts.jobTitle);
   if (opts.pageRanges) args.push("-P", opts.pageRanges);
 

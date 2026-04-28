@@ -43,6 +43,12 @@ server.tool(
     filePath: z.string().describe("Absolute path to the file to print. ~ is expanded to $HOME."),
     printer: z.string().optional().describe("Printer name (defaults to system default)"),
     copies: z.number().int().positive().optional().describe("Number of copies"),
+    collate: z
+      .boolean()
+      .optional()
+      .describe(
+        "Collate multi-copy output: true → 1,2,3,1,2,3; false → 1,1,2,2,3,3. Only meaningful when copies > 1. CUPS' default on most drivers is uncollated, so set this explicitly when you want collated copies.",
+      ),
     duplex: z
       .enum(["one-sided", "long-edge", "short-edge"])
       .optional()
