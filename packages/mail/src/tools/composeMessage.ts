@@ -7,13 +7,16 @@ export async function composeMessage(
   cc?: string[],
   attachments?: string[],
   htmlBody?: string,
+  from?: string,
 ) {
   if (htmlBody !== undefined) {
-    return composeHtmlMessage(to, subject, body, cc, attachments, htmlBody);
+    return composeHtmlMessage(to, subject, body, cc, attachments, htmlBody, from);
   }
 
   const subj = escapeForAppleScript(subject);
   const content = escapeForAppleScript(body);
+
+  const senderProp = from ? `, sender:"${escapeForAppleScript(from)}"` : "";
 
   const toRecipients = to
     .map((addr) => `make new to recipient at end of to recipients with properties {address:"${escapeForAppleScript(addr)}"}`)
@@ -29,7 +32,7 @@ export async function composeMessage(
 
   const script = withLaunch("Mail", `
 tell application "Mail"
-  set newMsg to make new outgoing message with properties {subject:"${subj}", content:"${content}", visible:true}
+  set newMsg to make new outgoing message with properties {subject:"${subj}", content:"${content}", visible:true${senderProp}}
   tell newMsg
     ${toRecipients}
     ${ccRecipients}
@@ -49,12 +52,17 @@ async function composeHtmlMessage(
   cc: string[] | undefined,
   attachments: string[] | undefined,
   htmlBody: string,
+  from: string | undefined,
 ) {
   // JXA path: Mail.app's outgoing message exposes an `htmlContent` setter
   // (not in the .sdef but supported at runtime) that converts an HTML string
   // into rich-text body, so the recipient sees rendered formatting instead of
   // raw tags. The plain `body` is still set as the content fallback for any
   // client/log that reads the plain-text representation.
+  const senderAssign = from
+    ? `msg.sender = ${jsLiteral(from)};`
+    : "";
+
   const script = `
 var Mail = Application('Mail');
 var msg = Mail.OutgoingMessage({
@@ -63,6 +71,7 @@ var msg = Mail.OutgoingMessage({
   visible: true
 });
 Mail.outgoingMessages.push(msg);
+${senderAssign}
 msg.htmlContent = ${jsLiteral(htmlBody)};
 ${jsLiteral(to)}.forEach(function(addr) {
   msg.toRecipients.push(Mail.ToRecipient({address: addr}));
