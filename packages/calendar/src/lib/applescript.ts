@@ -10,6 +10,7 @@ export * from "./applescript-core.js";
 // ours-to-quit.
 const launchedByUs = new Set<string>();
 let exitHandlersInstalled = false;
+let shutdownComplete = false;
 
 function isAppRunning(app: string): boolean {
   try {
@@ -21,14 +22,23 @@ function isAppRunning(app: string): boolean {
 }
 
 function quitLaunchedApps(): void {
+  // Idempotent across signal + "exit" paths: SIGTERM handlers call this
+  // and then process.exit(0), which itself fires "exit". Without the gate
+  // we'd send `quit` twice per app, and the second pass would relaunch
+  // any app that finished quitting between passes just to send quit again.
+  if (shutdownComplete) return;
+  shutdownComplete = true;
   for (const app of launchedByUs) {
+    // Skip apps the user already quit manually — `tell ... to quit` would
+    // relaunch them solely to deliver the verb (visible Dock bounce, no value).
+    if (!isAppRunning(app)) continue;
     try {
       execFileSync("osascript", ["-e", `tell application "${app}" to quit`], {
         timeout: 10000,
         stdio: "ignore",
       });
     } catch {
-      // App may have been quit manually, crashed, or be unresponsive — ignore.
+      // App may have crashed or be unresponsive — ignore.
     }
   }
 }
@@ -43,6 +53,8 @@ function installExitHandlers(): void {
   process.on("SIGTERM", onSignal);
   process.on("SIGINT", onSignal);
   process.on("SIGHUP", onSignal);
+  // Covers natural exit when the MCP host closes stdio without signaling.
+  // Re-entry is guarded by shutdownComplete.
   process.on("exit", quitLaunchedApps);
 }
 
