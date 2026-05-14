@@ -55,6 +55,17 @@ end tell`;
     ? `tell application "Mail" to send replyMsg`
     : "";
 
+  // Strip cc-rewrite logic when not replyAll — keeps the AppleScript small.
+  const ccRewriteBlock = replyAll
+    ? `
+    repeat with j from (count of cc recipients of replyMsg) to 1 by -1
+      delete (cc recipient j of replyMsg)
+    end repeat
+    repeat with addr in origCcList
+      make new cc recipient at end of cc recipients of replyMsg with properties {address:(contents of addr)}
+    end repeat`
+    : "";
+
   // Outgoing replies in modern Mail use a rich-text NSAttributedString editor
   // that is *not* exposed via the AppleScript `content` property — the getter
   // returns an empty string and setting it clears the editor instead of
@@ -68,6 +79,14 @@ end tell`;
   // without an `at` clause), so attachments also go through the pasteboard:
   // each path is put on the clipboard as a `POSIX file` and pasted into the
   // draft, which attaches the file without resetting the editor.
+  //
+  // Sent-by-me detection: `reply` addresses the new draft to the original
+  // sender. For messages in Sent Messages the original sender is the user,
+  // so the reply ends up addressed back to themselves. Detect this by
+  // matching the original sender against every email address configured on
+  // every Mail account (which includes iCloud Custom Domain aliases), and
+  // when true, replace the auto-populated to/cc recipients with the original
+  // audience captured before `reply` was called.
   const script = withLaunch("Mail", `
 tell application "Mail"
   set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${msgId}")
@@ -75,7 +94,41 @@ tell application "Mail"
     return "NOT_FOUND"
   end if
   set m to item 1 of msgs
+
+  set senderAddress to extract address from (sender of m)
+  set isSentByMe to false
+  repeat with anAccount in every account
+    try
+      if (email addresses of anAccount) contains senderAddress then
+        set isSentByMe to true
+        exit repeat
+      end if
+    end try
+  end repeat
+
+  set origToList to {}
+  try
+    repeat with r in (to recipients of m)
+      set end of origToList to (address of r)
+    end repeat
+  end try
+  set origCcList to {}
+  try
+    repeat with r in (cc recipients of m)
+      set end of origCcList to (address of r)
+    end repeat
+  end try
+
   set replyMsg to reply m ${replyParams}
+
+  if isSentByMe then
+    repeat with i from (count of to recipients of replyMsg) to 1 by -1
+      delete (to recipient i of replyMsg)
+    end repeat
+    repeat with addr in origToList
+      make new to recipient at end of to recipients of replyMsg with properties {address:(contents of addr)}
+    end repeat${ccRewriteBlock}
+  end if
 end tell
 
 set savedClip to ""
