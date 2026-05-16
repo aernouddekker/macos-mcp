@@ -11,7 +11,7 @@ tell application "Reminders"
   show (item 1 of results)
   activate
   return "ok"
-end tell`);
+end tell`, { keepOpen: true });
 
   const raw = await runAppleScript(script);
   if (raw.trim() === "NOT_FOUND") return null;

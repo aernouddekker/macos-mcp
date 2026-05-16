@@ -31,7 +31,7 @@ tell application "Mail"
 ${recipientLines}
   ${sendLine}
   return subject of redirMsg
-end tell`);
+end tell`, { keepOpen: !sendImmediately });
 
   const raw = await runAppleScript(script);
   if (raw === "NOT_FOUND") {

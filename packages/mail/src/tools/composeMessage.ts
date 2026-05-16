@@ -1,4 +1,4 @@
-import { runAppleScript, runJXA, escapeForAppleScript, withLaunch, jsLiteral } from "../lib/applescript.js";
+import { runAppleScript, runJXA, escapeForAppleScript, withLaunch, runWithApp, jsLiteral } from "../lib/applescript.js";
 
 export async function composeMessage(
   to: string[],
@@ -39,7 +39,7 @@ tell application "Mail"
     ${attachmentLines}
   end tell
   return id of newMsg
-end tell`);
+end tell`, { keepOpen: true });
 
   const msgId = await runAppleScript(script);
   return { outgoingMessageId: msgId.trim(), status: "draft_created" as const };
@@ -85,6 +85,6 @@ ${jsLiteral(attachments ?? [])}.forEach(function(p) {
 msg.id();
 `;
 
-  const msgId = await runJXA(script);
+  const msgId = await runWithApp("Mail", () => runJXA(script), { keepOpen: true });
   return { outgoingMessageId: msgId.trim(), status: "draft_created" as const };
 }

@@ -1,4 +1,4 @@
-import { runAppleScript, runJXA, escapeForAppleScript, withLaunch, jsLiteral } from "../lib/applescript.js";
+import { runAppleScript, runJXA, escapeForAppleScript, withLaunch, runWithApp, jsLiteral } from "../lib/applescript.js";
 
 export async function sendMessage(
   to: string[],
@@ -84,6 +84,6 @@ Mail.send(msg);
 "sent";
 `;
 
-  await runJXA(script);
+  await runWithApp("Mail", () => runJXA(script));
   return { status: "sent" as const };
 }

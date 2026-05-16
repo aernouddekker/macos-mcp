@@ -165,7 +165,7 @@ ${sendBlock}
 
 tell application "Mail"
   return subject of replyMsg
-end tell`);
+end tell`, { keepOpen: !sendImmediately });
 
   const raw = await runAppleScript(script);
   if (raw === "NOT_FOUND") {
