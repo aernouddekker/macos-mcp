@@ -1,13 +1,5 @@
 import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
-// TODO: forward shares the outgoing-message rich-text-editor desync that
-// reply hits — `set content of fwdMsg to "..." & (content of fwdMsg)` will
-// clear the auto-quoted body the same way it did for reply (see commits
-// 912a2c9 / 3f874df on replyToMessage). Not fixed here because forward is
-// rarely called with a custom body, and even more rarely with attachments
-// (tool doesn't accept an `attachments` parameter today). If we add one, or
-// if a user reports blank-forward drafts, port the pasteboard + Cmd-V
-// recipe from replyToMessage.ts wholesale.
 export async function forwardMessage(
   account: string,
   mailbox: string,
@@ -27,11 +19,46 @@ export async function forwardMessage(
     })
     .join("\n");
 
-  const bodyLine = body
-    ? `set content of fwdMsg to "${escapeForAppleScript(body)}" & return & return & (content of fwdMsg)`
+  // Outgoing forwards share the rich-text-editor desync that reply hits:
+  // `set content of fwdMsg to "..." & (content of fwdMsg)` clears the
+  // auto-quoted forwarded body instead of prepending. Recipient mutation via
+  // `make new to recipient` is safe (separate property), so we keep that
+  // AppleScript path and only route the cover-note body through the
+  // pasteboard — see replyToMessage.ts for the full rationale.
+  const bodyPasteBlock = body
+    ? `
+set savedClip to ""
+try
+  set savedClip to (the clipboard as text)
+end try
+set the clipboard to "${escapeForAppleScript(body)}"
+
+tell application "Mail" to activate
+delay 0.3
+set pasteErr to missing value
+try
+  tell application "System Events"
+    tell process "Mail"
+      set frontmost to true
+      delay 0.2
+      if frontmost is false then
+        error "Mail lost focus before body paste — aborting to avoid pasting into another app"
+      end if
+      keystroke "v" using command down
+      delay 0.3
+    end tell
+  end tell
+on error errText
+  set pasteErr to errText
+end try
+try
+  set the clipboard to savedClip
+end try
+if pasteErr is not missing value then error pasteErr
+`
     : "";
 
-  const sendLine = sendImmediately ? "send fwdMsg" : "";
+  const sendBlock = sendImmediately ? `tell application "Mail" to send fwdMsg` : "";
 
   const script = withLaunch("Mail", `
 tell application "Mail"
@@ -42,10 +69,15 @@ tell application "Mail"
   set m to item 1 of msgs
   set fwdMsg to forward m with opening window
 ${recipientLines}
-  ${bodyLine}
-  ${sendLine}
+end tell
+
+${bodyPasteBlock}
+
+${sendBlock}
+
+tell application "Mail"
   return subject of fwdMsg
-end tell`);
+end tell`, { keepOpen: !sendImmediately });
 
   const raw = await runAppleScript(script);
   if (raw === "NOT_FOUND") {
