@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function readTable(
   document: string,
@@ -15,7 +15,7 @@ export async function readTable(
     ? `sheet "${escapeForAppleScript(sheet)}"`
     : "sheet 1";
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${tableRef} of ${sheetRef} of document "${docEsc}"
     set numRows to row count
@@ -39,7 +39,7 @@ tell application "Numbers"
     end repeat
     return output
   end tell
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (!raw) return headerRow ? [] : [];

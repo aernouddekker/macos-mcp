@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function renameTable(
   document: string,
@@ -11,10 +11,10 @@ export async function renameTable(
   const newNameEsc = escapeForAppleScript(newName);
   const sheetRef = sheet ? `sheet "${escapeForAppleScript(sheet)}"` : "sheet 1";
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   set name of table "${tableEsc}" of ${sheetRef} of document "${docEsc}" to "${newNameEsc}"
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return { success: true, document, oldName: table, newName };

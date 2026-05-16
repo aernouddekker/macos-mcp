@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 const FORMAT_MAP: Record<string, string> = {
   "automatic": "automatic",
@@ -46,12 +46,12 @@ export async function setCellFormat(
 
   const resolved = FORMAT_MAP[format.toLowerCase()] ?? format;
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${tableRef} of ${sheetRef} of document "${docEsc}"
     set format of cell ${col} of row ${row} to ${resolved}
   end tell
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return {

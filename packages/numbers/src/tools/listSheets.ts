@@ -1,8 +1,8 @@
-import { runAppleScript, escapeForAppleScript, parseRecords } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch } from "../lib/applescript.js";
 
 export async function listSheets(document: string) {
   const docEsc = escapeForAppleScript(document);
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell document "${docEsc}"
     set output to ""
@@ -31,7 +31,7 @@ tell application "Numbers"
     end repeat
   end tell
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   return parseRecords(raw, ["sheet", "table", "rowCount", "columnCount"]);

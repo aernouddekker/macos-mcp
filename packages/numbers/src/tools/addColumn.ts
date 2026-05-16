@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 function colLetterToNum(col: string): number {
   let n = 0;
@@ -26,20 +26,20 @@ export async function addColumn(
   let script: string;
   if (afterColumn) {
     const colNum = colLetterToNum(afterColumn);
-    script = `
+    script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${tableRef} of ${sheetRef} of document "${docEsc}"
     add column after column ${colNum}
   end tell
-end tell`;
+end tell`);
   } else {
-    script = `
+    script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${tableRef} of ${sheetRef} of document "${docEsc}"
     set colCount to column count
     add column after column colCount
   end tell
-end tell`;
+end tell`);
   }
 
   await runAppleScript(script);

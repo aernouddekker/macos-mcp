@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function addTable(
   document: string,
@@ -13,19 +13,19 @@ export async function addTable(
   let script: string;
   if (name) {
     const nameEsc = escapeForAppleScript(name);
-    script = `
+    script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${sheetRef} of document "${docEsc}"
     make new table with properties {name:"${nameEsc}"}
   end tell
-end tell`;
+end tell`);
   } else {
-    script = `
+    script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${sheetRef} of document "${docEsc}"
     make new table
   end tell
-end tell`;
+end tell`);
   }
 
   await runAppleScript(script);

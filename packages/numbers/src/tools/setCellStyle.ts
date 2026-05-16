@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 import { parseCellRef } from "./readRange.js";
 
 function hexToAppleScriptRgb(hex: string): string {
@@ -71,13 +71,13 @@ export async function setCellStyle(
     return { success: true, cell, appliedStyles: [] };
   }
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${tableRef} of ${sheetRef} of document "${docEsc}"
     set theCell to cell ${col} of row ${row}
     ${styleLines.join("\n    ")}
   end tell
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return { success: true, cell, appliedStyles };

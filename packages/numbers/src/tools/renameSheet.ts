@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function renameSheet(
   document: string,
@@ -9,10 +9,10 @@ export async function renameSheet(
   const sheetEsc = escapeForAppleScript(sheet);
   const newNameEsc = escapeForAppleScript(newName);
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   set name of sheet "${sheetEsc}" of document "${docEsc}" to "${newNameEsc}"
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return {

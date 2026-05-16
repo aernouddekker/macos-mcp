@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 function colLetterToNum(col: string): number {
   let n = 0;
@@ -35,12 +35,12 @@ export async function resizeRowColumn(
     changes.push({ type: "column", index: column, size: width });
   }
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${tableRef} of ${sheetRef} of document "${docEsc}"
 ${lines.join("\n")}
   end tell
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return { success: true, changes };

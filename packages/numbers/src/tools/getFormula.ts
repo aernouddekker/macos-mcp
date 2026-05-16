@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function getFormula(
   document: string,
@@ -16,7 +16,7 @@ export async function getFormula(
     ? `sheet "${escapeForAppleScript(sheet)}"`
     : "sheet 1";
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${tableRef} of ${sheetRef} of document "${docEsc}"
     set theCell to cell "${cellEsc}"
@@ -27,7 +27,7 @@ tell application "Numbers"
     end try
     return theFormula
   end tell
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   return { document, sheet: sheet ?? "sheet 1", table: table ?? "table 1", cell, formula: raw };

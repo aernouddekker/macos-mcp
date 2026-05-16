@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function addSheet(
   document: string,
@@ -9,19 +9,19 @@ export async function addSheet(
   let script: string;
   if (name) {
     const nameEsc = escapeForAppleScript(name);
-    script = `
+    script = withLaunch("Numbers", `
 tell application "Numbers"
   tell document "${docEsc}"
     make new sheet with properties {name:"${nameEsc}"}
   end tell
-end tell`;
+end tell`);
   } else {
-    script = `
+    script = withLaunch("Numbers", `
 tell application "Numbers"
   tell document "${docEsc}"
     make new sheet
   end tell
-end tell`;
+end tell`);
   }
 
   await runAppleScript(script);

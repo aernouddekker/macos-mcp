@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 function colLetterToNum(col: string): number {
   let n = 0;
@@ -24,12 +24,12 @@ export async function deleteColumn(
     ? `sheet "${escapeForAppleScript(sheet)}"`
     : "sheet 1";
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${tableRef} of ${sheetRef} of document "${docEsc}"
     delete column ${colNum}
   end tell
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return {

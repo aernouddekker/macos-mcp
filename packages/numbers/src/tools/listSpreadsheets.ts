@@ -1,7 +1,7 @@
-import { runAppleScript, parseRecords } from "../lib/applescript.js";
+import { runAppleScript, parseRecords, withLaunch } from "../lib/applescript.js";
 
 export async function listSpreadsheets() {
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   set output to ""
   repeat with doc in every document
@@ -17,7 +17,7 @@ tell application "Numbers"
     set output to output & docName & "|||" & docPath & "~~~"
   end repeat
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   return parseRecords(raw, ["name", "path"]);

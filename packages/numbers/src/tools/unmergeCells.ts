@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function unmergeCells(
   document: string,
@@ -11,12 +11,12 @@ export async function unmergeCells(
   const sheetRef = sheet ? `sheet "${escapeForAppleScript(sheet)}"` : "sheet 1";
   const rangeEsc = escapeForAppleScript(range);
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${tableRef} of ${sheetRef} of document "${docEsc}"
     unmerge range "${rangeEsc}"
   end tell
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return { success: true, document, range };

@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 function colLetterToNum(col: string): number {
   let n = 0;
@@ -38,7 +38,7 @@ export async function readRange(
     ? `sheet "${escapeForAppleScript(sheet)}"`
     : "sheet 1";
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${tableRef} of ${sheetRef} of document "${docEsc}"
     set output to ""
@@ -60,7 +60,7 @@ tell application "Numbers"
     end repeat
   end tell
   return output
-end tell`;
+end tell`);
 
   const raw = await runAppleScript(script);
   if (!raw) return [];

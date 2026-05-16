@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function deleteTable(
   document: string,
@@ -11,12 +11,12 @@ export async function deleteTable(
     ? `sheet "${escapeForAppleScript(sheet)}"`
     : "sheet 1";
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${sheetRef} of document "${docEsc}"
     delete table "${tableEsc}"
   end tell
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return {

@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 import { parseCellRef } from "./readRange.js";
 
 export async function writeRange(
@@ -28,12 +28,12 @@ export async function writeRange(
     }
   }
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${tableRef} of ${sheetRef} of document "${docEsc}"
     ${setCmds.join("\n    ")}
   end tell
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return {

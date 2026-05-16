@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 function colLetterToNum(col: string): number {
   let n = 0;
@@ -20,12 +20,12 @@ export async function sortTable(
   const sheetRef = sheet ? `sheet "${escapeForAppleScript(sheet)}"` : "sheet 1";
   const colNum = colLetterToNum(column);
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${tableRef} of ${sheetRef} of document "${docEsc}"
     sort by column ${colNum} direction ${direction}
   end tell
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return { success: true, document, column, direction };

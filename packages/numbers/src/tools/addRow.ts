@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function addRow(
   document: string,
@@ -20,7 +20,7 @@ export async function addRow(
     return `set value of cell ${i + 1} of row newRowIndex to "${valEsc}"`;
   });
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${tableRef} of ${sheetRef} of document "${docEsc}"
     set rowCount to row count
@@ -28,7 +28,7 @@ tell application "Numbers"
     set newRowIndex to rowCount + 1
     ${setCmds.join("\n    ")}
   end tell
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return {

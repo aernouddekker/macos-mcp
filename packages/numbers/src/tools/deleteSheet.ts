@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function deleteSheet(
   document: string,
@@ -7,12 +7,12 @@ export async function deleteSheet(
   const docEsc = escapeForAppleScript(document);
   const sheetEsc = escapeForAppleScript(sheet);
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell document "${docEsc}"
     delete sheet "${sheetEsc}"
   end tell
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return {

@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function transposeTable(
   document: string,
@@ -9,12 +9,12 @@ export async function transposeTable(
   const tableRef = table ? `table "${escapeForAppleScript(table)}"` : "table 1";
   const sheetRef = sheet ? `sheet "${escapeForAppleScript(sheet)}"` : "sheet 1";
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   tell ${tableRef} of ${sheetRef} of document "${docEsc}"
     transpose
   end tell
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return { success: true, document, sheet, table };

@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript } from "../lib/applescript.js";
+import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 const FORMAT_MAP: Record<string, string> = {
   pdf: "PDF",
@@ -15,10 +15,10 @@ export async function exportDocument(
   const pathEsc = escapeForAppleScript(path);
   const asFormat = FORMAT_MAP[format];
 
-  const script = `
+  const script = withLaunch("Numbers", `
 tell application "Numbers"
   export document "${docEsc}" to POSIX file "${pathEsc}" as ${asFormat}
-end tell`;
+end tell`);
 
   await runAppleScript(script);
   return { success: true, document, path, format };
