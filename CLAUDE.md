@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-A monorepo of macOS MCP servers that wrap AppleScript calls to native macOS apps via `osascript`, plus a CUPS print server and a FaceTime/phone-call helper. Gives Claude Code and Cowork native access to Mail, Numbers, Contacts, Calendar, Reminders, printing, and FaceTime. Runs locally, no auth needed, works with any accounts configured in the respective apps.
+A monorepo of macOS MCP servers that wrap AppleScript calls to native macOS apps via `osascript`, plus a FaceTime/phone-call helper. Gives Claude Code and Cowork native access to Mail, Numbers, Contacts, Calendar, Reminders, and FaceTime. Runs locally, no auth needed, works with any accounts configured in the respective apps.
+
+The CUPS printing server (`printmcp`) used to live here; it moved to the [office-mcp](https://github.com/aernouddekker/office-mcp) repo (shell-based, fits better alongside imagegen / judge / transcribe).
 
 ## Build & Run
 
@@ -18,11 +20,11 @@ No tests yet. All AppleScript-based servers communicate over stdio — they're n
 
 ## Architecture
 
-**Monorepo:** npm workspaces with one shared package and seven server packages under `packages/`.
+**Monorepo:** npm workspaces with six server packages under `packages/`.
 
 **Shared package (`@mailappmcp/shared`):** `packages/shared/src/applescript.ts` — `runAppleScript()` executes scripts via `child_process.execFile("osascript", ...)`. Uses delimiter-based parsing (`|||` between fields, `~~~` between records). `escapeForAppleScript()` handles quote/backslash escaping. Also exports `runCommand()` for non-AppleScript shell-outs.
 
-**Seven MCP servers:**
+**Six MCP servers:**
 
 | Package | npm name | App / system | Tools |
 |---------|----------|--------------|-------|
@@ -31,7 +33,6 @@ No tests yet. All AppleScript-based servers communicate over stdio — they're n
 | `packages/contacts` | `contactsmcp` | Contacts.app | 15 tools |
 | `packages/calendar` | `@aernoud/calendarmcp` | Calendar.app | 25 tools |
 | `packages/reminders` | `@aernoud/remindersmcp` | Reminders.app | 22 tools |
-| `packages/print` | `@aernoud/printmcp` | CUPS (`lp`/`lpstat`) | 5 tools |
 | `packages/facetime` | `@aernoud/facetimemcp` | `tel://` / `facetime://` URL schemes | 3 tools |
 
 **Pattern:** Each server's `src/index.ts` creates an `McpServer`, registers tools with Zod schemas, connects via `StdioServerTransport`. Each AppleScript tool file builds a script using helpers from `@mailappmcp/shared`, executes it, and parses the result. The calendar and reminders packages keep a local `src/helpers/dates.ts` so date interpolation is locale-safe (avoids `date "string"` parsing).

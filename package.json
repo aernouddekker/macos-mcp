@@ -6,7 +6,6 @@
     "packages/contacts",
     "packages/calendar",
     "packages/reminders",
-    "packages/print",
     "packages/facetime"
   ],
   "scripts": {

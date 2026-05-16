@@ -1,8 +1,10 @@
 # macos-mcp
 
-MCP servers for macOS native apps — gives [Claude Code](https://claude.ai/code), [Claude Desktop](https://claude.ai/download), and any MCP client native access to Mail, Numbers, Contacts, Calendar, Reminders, printing (CUPS), and FaceTime / phone calls.
+MCP servers for macOS native apps — gives [Claude Code](https://claude.ai/code), [Claude Desktop](https://claude.ai/download), and any MCP client native access to Mail, Numbers, Contacts, Calendar, Reminders, and FaceTime / phone calls.
 
-No API keys, no OAuth, no cloud services. Talks directly to macOS apps via AppleScript, CUPS (`lp`/`lpstat`), and URL schemes (`tel://`, `facetime://`). Runs locally on your Mac.
+No API keys, no OAuth, no cloud services. Talks directly to macOS apps via AppleScript and URL schemes (`tel://`, `facetime://`). Runs locally on your Mac.
+
+> CUPS printing (`printmcp`) used to live here; it moved to [office-mcp](https://github.com/aernouddekker/office-mcp) since it's a shell wrapper, not an AppleScript bridge.
 
 ## Servers
 
@@ -153,20 +155,6 @@ Works with every reminder list configured in Reminders.app — iCloud, Exchange,
 | `set-priority` | Set priority to none / high / medium / low (mapped to Reminders' 0/1/5/9 enum) |
 | `show-reminder` | Bring Reminders.app to the front and focus a specific reminder |
 
-### Print (`printmcp`) — 5 tools
-
-Wraps the macOS CUPS print system (`lp`, `lpstat`, `lpoptions`, `cancel`). Discovers any printer the Mac knows about — local USB, network, AirPrint, shared from another Mac. No AppleScript involved.
-
-| Tool | Description |
-|------|-------------|
-| `list-printers` | List all CUPS printers with status, location, default flag |
-| `get-printer-options` | List supported PPD options for a printer (sides, media size, color mode, …) with current defaults |
-| `print-file` | Print a local file (PDF, plain text, JPEG/PNG, PostScript) with copies, duplex, paper size, page ranges, fit-to-page, and arbitrary `lp` options |
-| `list-print-jobs` | List active print jobs (optionally filtered to a printer) |
-| `cancel-print-job` | Cancel a queued or printing job by id |
-
-Composes naturally with `mailappmcp`: e.g. *"print the attachment of the latest email from Hadi"* — search the message, `save-attachment` to a temp dir, then `print-file`.
-
 ### FaceTime (`facetimemcp`) — 3 tools
 
 Initiates calls by handing URL schemes to `open`. Phone calls require an iPhone paired via Continuity (so macOS can route them through your phone).
@@ -194,7 +182,6 @@ npm install -g numbersmcp            # Numbers server
 npm install -g @aernoud/contactsmcp  # Contacts server
 npm install -g @aernoud/calendarmcp  # Calendar server
 npm install -g @aernoud/remindersmcp # Reminders server
-npm install -g @aernoud/printmcp     # Print server (CUPS)
 npm install -g @aernoud/facetimemcp  # FaceTime / phone calls
 ```
 
@@ -221,7 +208,6 @@ Add to `~/.claude/settings.json` or your project's `.mcp.json`:
     "contactsmcp":  { "command": "npx", "args": ["-y", "@aernoud/contactsmcp"] },
     "calendarmcp":  { "command": "npx", "args": ["-y", "@aernoud/calendarmcp"] },
     "remindersmcp": { "command": "npx", "args": ["-y", "@aernoud/remindersmcp"] },
-    "printmcp":     { "command": "npx", "args": ["-y", "@aernoud/printmcp"] },
     "facetimemcp":  { "command": "npx", "args": ["-y", "@aernoud/facetimemcp"] }
   }
 }
@@ -239,7 +225,6 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
     "contactsmcp":  { "command": "npx", "args": ["-y", "@aernoud/contactsmcp"] },
     "calendarmcp":  { "command": "npx", "args": ["-y", "@aernoud/calendarmcp"] },
     "remindersmcp": { "command": "npx", "args": ["-y", "@aernoud/remindersmcp"] },
-    "printmcp":     { "command": "npx", "args": ["-y", "@aernoud/printmcp"] },
     "facetimemcp":  { "command": "npx", "args": ["-y", "@aernoud/facetimemcp"] }
   }
 }
