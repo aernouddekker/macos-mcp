@@ -1,7 +1,42 @@
 import { execFileSync } from "node:child_process";
-import { runAppleScript } from "./applescript-core.js";
+import { runAppleScript, runJXA, jsLiteral } from "./applescript-core.js";
 
 export * from "./applescript-core.js";
+
+/**
+ * Put an HTML string on the general pasteboard with the `public.html` flavor so
+ * a subsequent Cmd-V pastes rendered rich text (not raw tags) into an app that
+ * accepts rich content — e.g. Mail's reply editor, which exposes no scriptable
+ * way to set an HTML body on a reply. Pair with getClipboardText/setClipboardText
+ * to save and restore the user's prior clipboard around the paste.
+ */
+export async function setHtmlClipboard(html: string): Promise<void> {
+  await runJXA(`
+ObjC.import("AppKit");
+var pb = $.NSPasteboard.generalPasteboard;
+pb.clearContents;
+pb.setStringForType($(${jsLiteral(html)}), $.NSPasteboardTypeHTML);
+"ok";`);
+}
+
+/** Read the plain-text clipboard contents, or "" if it holds no text. */
+export async function getClipboardText(): Promise<string> {
+  try {
+    return await runAppleScript("the clipboard as text");
+  } catch {
+    return "";
+  }
+}
+
+/** Replace the clipboard with plain text. Robust to newlines/quotes via JXA. */
+export async function setClipboardText(text: string): Promise<void> {
+  await runJXA(`
+ObjC.import("AppKit");
+var pb = $.NSPasteboard.generalPasteboard;
+pb.clearContents;
+pb.setStringForType($(${jsLiteral(text)}), $.NSPasteboardTypeString);
+"ok";`);
+}
 
 // Leave-as-found tracking: remember which apps we launched (vs. were
 // already running). Apps we launched are quit after each tool call by

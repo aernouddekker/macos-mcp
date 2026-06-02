@@ -24,7 +24,7 @@ Works with every email account configured in Mail.app — iCloud, Gmail, Outlook
 | `save-attachment` | Save email attachments to disk |
 | `compose-message` | Create a draft in Mail.app (does **not** send) — supports plain or HTML body via `htmlBody`, plus attachments |
 | `send-message` | Send an email immediately (supports `from`, attachments, plain or HTML body via `htmlBody`) |
-| `reply-to-message` | Reply or reply-all to a message (supports attachments) |
+| `reply-to-message` | Reply or reply-all to a message — threads correctly and supports a branded `htmlBody` or attachments |
 | `forward-message` | Forward a message to new recipients |
 | `redirect-message` | Redirect a message (preserves original sender) |
 | `move-messages` | Move messages between mailboxes |
@@ -266,7 +266,42 @@ This means you can use the tools without worrying about a pile of half-launched 
 }
 ```
 
-Under the hood, the HTML path uses JXA (`osascript -l JavaScript`) and Mail.app's runtime `htmlContent` setter on outgoing messages. The plain-text path still uses ordinary AppleScript.
+Under the hood, the HTML path for `compose-message` / `send-message` uses JXA (`osascript -l JavaScript`) and Mail.app's runtime `htmlContent` setter on outgoing messages. The plain-text path still uses ordinary AppleScript.
+
+#### Branded replies that thread correctly
+
+`reply-to-message` also accepts `htmlBody`, producing a reply that is **both** branded **and** correctly threaded. Mail's scripting model can't set arbitrary RFC headers, and an outgoing reply's rich-text editor isn't writable via the AppleScript `content` property — so neither tool alone could do both before. The reply tool now:
+
+1. invokes Mail's native `reply` verb, which constructs the reply and populates the `In-Reply-To` / `References` headers (these are message properties, independent of the body), then
+2. puts the branded HTML on the pasteboard as `public.html` and pastes it (Cmd-V) above the auto-quoted thread.
+
+The result renders the branding inline, keeps the quoted thread, and carries the threading headers strict clients (Outlook, Gmail web) require to nest the reply.
+
+```jsonc
+// reply-to-message with a branded HTML body
+{
+  "account": "iCloud",
+  "mailbox": "INBOX",
+  "messageId": "<abc123@example.com>",
+  "body": "Thanks — see below.",       // ignored when htmlBody is set
+  "htmlBody": "<p>Thanks for reaching out — here's the update:</p><ul><li><b>Status:</b> shipped</li></ul>"
+}
+```
+
+Constraints:
+
+- `htmlBody` and `attachments` cannot be combined on a reply (Mail re-parses the HTML during MIME multipart composition and corrupts the rendered body) — the tool returns an error if both are passed. Send the branded reply first, then attach files in a separate reply.
+- When `htmlBody` is supplied, the plain-text `body` is ignored; Mail derives the plain-text MIME alternative from the pasted rich text.
+- Pasting requires Mail to hold focus briefly; the script aborts safely (and restores your clipboard) if focus is lost.
+
+#### Verifying an HTML / branded reply
+
+After producing a branded reply, confirm both halves actually work:
+
+1. **Render check** — open the draft Mail created. The branding should appear as formatted rich text (headings, bold, links), not raw `<tags>`, sitting above the quoted original.
+2. **Threading / header check** — send the reply to a recipient on a strict client (**Outlook** or **Gmail web**) and confirm it nests inside the original conversation rather than appearing as a loose message. Equivalently, run `get-message-source` on the sent reply and verify it carries `In-Reply-To:` and `References:` headers pointing at the original Message-ID.
+3. **Clipboard check** — confirm your clipboard holds its prior contents afterwards (the tool saves and restores it around the paste).
+4. **Attachment guard** — calling `reply-to-message` with both `htmlBody` and `attachments` should return a clear error, not a corrupted draft.
 
 ## Known limitations
 

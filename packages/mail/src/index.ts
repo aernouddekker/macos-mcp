@@ -110,18 +110,19 @@ server.tool(
 
 server.tool(
   "reply-to-message",
-  "Reply to an existing email message",
+  "Reply to an existing email message. The reply inherits correct threading headers (In-Reply-To / References) from Mail's native reply, so it nests in the thread even in strict clients (Outlook, Gmail web). Pass htmlBody for a branded rich-text/HTML reply; the HTML is rendered above the quoted thread and Mail derives the plain-text fallback. htmlBody cannot be combined with attachments (Mail corrupts the HTML during MIME composition). When htmlBody is supplied, the plain-text body is ignored.",
   {
     account: z.string().describe("Mail account name"),
     mailbox: z.string().describe("Mailbox name"),
     messageId: z.string().describe("RFC Message-ID of the email to reply to"),
-    body: z.string().describe("Reply body text"),
+    body: z.string().describe("Reply body text (ignored when htmlBody is supplied)"),
     replyAll: z.boolean().optional().default(false).describe("Reply to all recipients"),
     sendImmediately: z.boolean().optional().default(false).describe("Send immediately instead of opening as draft"),
-    attachments: z.array(z.string()).optional().describe("Absolute file paths to attach"),
+    attachments: z.array(z.string()).optional().describe("Absolute file paths to attach (not allowed together with htmlBody)"),
+    htmlBody: z.string().optional().describe("Optional HTML body. When set, the reply is branded rich-text/HTML rendered above the quoted thread, while still threading correctly. Backward compatible: omit for the existing plain-text reply."),
   },
-  async ({ account, mailbox, messageId, body, replyAll, sendImmediately, attachments }) => {
-    const result = await replyToMessage(account, mailbox, messageId, body, replyAll, sendImmediately, attachments);
+  async ({ account, mailbox, messageId, body, replyAll, sendImmediately, attachments, htmlBody }) => {
+    const result = await replyToMessage(account, mailbox, messageId, body, replyAll, sendImmediately, attachments, htmlBody);
     if (!result) {
       return { content: [{ type: "text", text: "Original message not found." }] };
     }

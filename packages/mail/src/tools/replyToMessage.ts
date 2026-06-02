@@ -1,4 +1,11 @@
-import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
+import {
+  runAppleScript,
+  escapeForAppleScript,
+  withLaunch,
+  setHtmlClipboard,
+  getClipboardText,
+  setClipboardText,
+} from "../lib/applescript.js";
 
 export async function replyToMessage(
   account: string,
@@ -8,7 +15,19 @@ export async function replyToMessage(
   replyAll: boolean = false,
   sendImmediately: boolean = false,
   attachments?: string[],
+  htmlBody?: string,
 ) {
+  if (htmlBody !== undefined) {
+    if ((attachments ?? []).length > 0) {
+      throw new Error(
+        "reply-to-message: htmlBody and attachments cannot be combined — Mail re-parses " +
+          "the HTML during MIME multipart composition and corrupts the rendered body. " +
+          "Send the branded reply first, then attach files in a separate reply, or omit htmlBody.",
+      );
+    }
+    return replyHtmlMessage(account, mailbox, messageId, htmlBody, replyAll, sendImmediately);
+  }
+
   const acct = escapeForAppleScript(account);
   const mbox = escapeForAppleScript(mailbox);
   const msgId = escapeForAppleScript(messageId);
@@ -176,4 +195,128 @@ end tell`, { keepOpen: !sendImmediately });
     subject: raw.trim(),
     status: sendImmediately ? ("sent" as const) : ("draft_created" as const),
   };
+}
+
+async function replyHtmlMessage(
+  account: string,
+  mailbox: string,
+  messageId: string,
+  htmlBody: string,
+  replyAll: boolean,
+  sendImmediately: boolean,
+) {
+  const acct = escapeForAppleScript(account);
+  const mbox = escapeForAppleScript(mailbox);
+  const msgId = escapeForAppleScript(messageId);
+
+  const replyParams = replyAll
+    ? "with opening window, reply to all"
+    : "with opening window";
+
+  const sendBlock = sendImmediately
+    ? `tell application "Mail" to send replyMsg`
+    : "";
+
+  const ccRewriteBlock = replyAll
+    ? `
+    repeat with j from (count of cc recipients of replyMsg) to 1 by -1
+      delete (cc recipient j of replyMsg)
+    end repeat
+    repeat with addr in origCcList
+      make new cc recipient at end of cc recipients of replyMsg with properties {address:(contents of addr)}
+    end repeat`
+    : "";
+
+  // Same threading mechanism as the plain-text path: the native `reply` verb
+  // sets the In-Reply-To / References headers (they are message properties,
+  // independent of the body), and the cursor opens above the auto-quoted
+  // thread. The only difference is the body flavor — the caller puts the
+  // branded HTML on the pasteboard as `public.html` (see setHtmlClipboard), so
+  // a single Cmd-V pastes rendered rich text above the quote. Mail derives the
+  // plain-text MIME alternative from the pasted rich text, so the recipient
+  // still gets a text fallback. Clipboard save/restore is handled in TS (the
+  // clipboard now holds HTML, not plain text, so the in-script `as text`
+  // save/restore the plain path uses would not round-trip it).
+  //
+  // Attachments are intentionally unsupported here — combining an HTML body
+  // with attachments corrupts Mail's MIME composition (guarded by the caller).
+  // See replyToMessage above for the sent-by-me detection rationale.
+  const script = withLaunch("Mail", `
+tell application "Mail"
+  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${msgId}")
+  if (count of msgs) is 0 then
+    return "NOT_FOUND"
+  end if
+  set m to item 1 of msgs
+
+  set senderAddress to extract address from (sender of m)
+  set isSentByMe to false
+  repeat with anAccount in every account
+    try
+      if (email addresses of anAccount) contains senderAddress then
+        set isSentByMe to true
+        exit repeat
+      end if
+    end try
+  end repeat
+
+  set origToList to {}
+  try
+    repeat with r in (to recipients of m)
+      set end of origToList to (address of r)
+    end repeat
+  end try
+  set origCcList to {}
+  try
+    repeat with r in (cc recipients of m)
+      set end of origCcList to (address of r)
+    end repeat
+  end try
+
+  set replyMsg to reply m ${replyParams}
+
+  if isSentByMe then
+    repeat with i from (count of to recipients of replyMsg) to 1 by -1
+      delete (to recipient i of replyMsg)
+    end repeat
+    repeat with addr in origToList
+      make new to recipient at end of to recipients of replyMsg with properties {address:(contents of addr)}
+    end repeat${ccRewriteBlock}
+  end if
+end tell
+
+tell application "Mail" to activate
+delay 0.3
+tell application "System Events"
+  tell process "Mail"
+    set frontmost to true
+    delay 0.2
+    if frontmost is false then
+      error "Mail lost focus before body paste — aborting to avoid pasting into another app"
+    end if
+    keystroke "v" using command down
+    delay 0.3
+  end tell
+end tell
+
+${sendBlock}
+
+tell application "Mail"
+  return subject of replyMsg
+end tell`, { keepOpen: !sendImmediately });
+
+  const savedClip = await getClipboardText();
+  try {
+    await setHtmlClipboard(htmlBody);
+    const raw = await runAppleScript(script);
+    if (raw === "NOT_FOUND") {
+      return null;
+    }
+    return {
+      subject: raw.trim(),
+      status: sendImmediately ? ("sent" as const) : ("draft_created" as const),
+    };
+  } finally {
+    await setClipboardText(savedClip);
+  }
 }
