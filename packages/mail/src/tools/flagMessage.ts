@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
+import { runAppleScript, messageIdFilter, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function flagMessage(
   account: string,
@@ -13,7 +13,6 @@ export async function flagMessage(
 
   let updatedCount = 0;
   for (const msgId of messageIds) {
-    const id = escapeForAppleScript(msgId);
     const flagLines = unflag
       ? `set flagged status of item 1 of msgs to false`
       : `set flagged status of item 1 of msgs to true
@@ -21,7 +20,7 @@ export async function flagMessage(
 
     const script = withLaunch("Mail", `
 tell application "Mail"
-  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${id}")
+  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose ${messageIdFilter(msgId)})
   if (count of msgs) > 0 then
     ${flagLines}
     return "updated"

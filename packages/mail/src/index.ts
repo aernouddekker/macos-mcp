@@ -61,7 +61,7 @@ server.tool(
   {
     account: z.string().describe("Mail account name"),
     mailbox: z.string().describe("Mailbox name"),
-    messageId: z.string().describe("RFC Message-ID of the email (from search results)"),
+    messageId: z.string().describe("Mail local ID (`id` from search results, preferred) or RFC Message-ID of the email (from search results)"),
   },
   async ({ account, mailbox, messageId }) => {
     const message = await readMessage(account, mailbox, messageId);
@@ -114,7 +114,7 @@ server.tool(
   {
     account: z.string().describe("Mail account name"),
     mailbox: z.string().describe("Mailbox name"),
-    messageId: z.string().describe("RFC Message-ID of the email to reply to"),
+    messageId: z.string().describe("Mail local ID (`id` from search results, preferred) or RFC Message-ID of the email to reply to"),
     body: z.string().describe("Reply body text (ignored when htmlBody is supplied)"),
     replyAll: z.boolean().optional().default(false).describe("Reply to all recipients"),
     sendImmediately: z.boolean().optional().default(false).describe("Send immediately instead of opening as draft"),
@@ -132,11 +132,11 @@ server.tool(
 
 server.tool(
   "delete-messages",
-  "Delete one or more email messages by their RFC Message-IDs",
+  "Delete one or more email messages by their Mail local IDs or RFC Message-IDs",
   {
     account: z.string().describe("Mail account name"),
     mailbox: z.string().describe("Mailbox name"),
-    messageIds: z.array(z.string()).describe("RFC Message-IDs of the emails to delete"),
+    messageIds: z.array(z.string()).describe("Mail local IDs (`id` from search results, preferred) or RFC Message-IDs of the emails to delete"),
   },
   async ({ account, mailbox, messageIds }) => {
     const result = await deleteMessages(account, mailbox, messageIds);
@@ -150,7 +150,7 @@ server.tool(
   {
     account: z.string().describe("Mail account name"),
     mailbox: z.string().describe("Mailbox name"),
-    messageIds: z.array(z.string()).describe("RFC Message-IDs of the emails to mark as read"),
+    messageIds: z.array(z.string()).describe("Mail local IDs (`id` from search results, preferred) or RFC Message-IDs of the emails to mark as read"),
   },
   async ({ account, mailbox, messageIds }) => {
     const result = await markAsRead(account, mailbox, messageIds);
@@ -164,7 +164,7 @@ server.tool(
   {
     account: z.string().describe("Source Mail account name"),
     mailbox: z.string().describe("Source mailbox name"),
-    messageIds: z.array(z.string()).describe("RFC Message-IDs of the emails to move"),
+    messageIds: z.array(z.string()).describe("Mail local IDs (`id` from search results, preferred) or RFC Message-IDs of the emails to move"),
     toAccount: z.string().describe("Destination Mail account name"),
     toMailbox: z.string().describe("Destination mailbox name"),
   },
@@ -180,7 +180,7 @@ server.tool(
   {
     account: z.string().describe("Mail account name"),
     mailbox: z.string().describe("Mailbox name"),
-    messageId: z.string().describe("RFC Message-ID of the email to forward"),
+    messageId: z.string().describe("Mail local ID (`id` from search results, preferred) or RFC Message-ID of the email to forward"),
     to: z.array(z.string()).describe("Recipient email addresses"),
     body: z.string().optional().describe("Optional text to prepend to the forwarded message body"),
     sendImmediately: z.boolean().optional().default(false).describe("Send immediately instead of opening as draft"),
@@ -200,7 +200,7 @@ server.tool(
   {
     account: z.string().describe("Mail account name"),
     mailbox: z.string().describe("Mailbox name"),
-    messageId: z.string().describe("RFC Message-ID of the email"),
+    messageId: z.string().describe("Mail local ID (`id` from search results, preferred) or RFC Message-ID of the email"),
     savePath: z.string().optional().describe("Directory to save attachments to (defaults to ~/Downloads)"),
     attachmentName: z.string().optional().describe("Specific attachment filename to save; omit to save all attachments"),
   },
@@ -219,7 +219,7 @@ server.tool(
   {
     account: z.string().describe("Mail account name"),
     mailbox: z.string().describe("Mailbox name"),
-    messageIds: z.array(z.string()).describe("RFC Message-IDs of the emails to flag"),
+    messageIds: z.array(z.string()).describe("Mail local IDs (`id` from search results, preferred) or RFC Message-IDs of the emails to flag"),
     flagIndex: z.number().min(-1).max(6).describe("Flag color: -1=unflag, 0=red, 1=orange, 2=yellow, 3=green, 4=blue, 5=purple, 6=gray"),
   },
   async ({ account, mailbox, messageIds, flagIndex }) => {
@@ -246,7 +246,7 @@ server.tool(
   {
     account: z.string().describe("Mail account name"),
     mailbox: z.string().describe("Mailbox name"),
-    messageId: z.string().describe("RFC Message-ID of the email to redirect"),
+    messageId: z.string().describe("Mail local ID (`id` from search results, preferred) or RFC Message-ID of the email to redirect"),
     to: z.array(z.string()).describe("Recipient email addresses"),
     sendImmediately: z.boolean().optional().default(false).describe("Send immediately instead of opening as draft"),
   },
@@ -285,7 +285,7 @@ server.tool(
   {
     account: z.string().describe("Mail account name"),
     mailbox: z.string().describe("Mailbox name"),
-    messageIds: z.array(z.string()).describe("RFC Message-IDs of the emails to mark"),
+    messageIds: z.array(z.string()).describe("Mail local IDs (`id` from search results, preferred) or RFC Message-IDs of the emails to mark"),
     isJunk: z.boolean().optional().default(true).describe("Mark as junk (true) or not junk (false)"),
   },
   async ({ account, mailbox, messageIds, isJunk }) => {
@@ -300,7 +300,7 @@ server.tool(
   {
     account: z.string().describe("Mail account name"),
     mailbox: z.string().describe("Mailbox name"),
-    messageId: z.string().describe("RFC Message-ID of the email"),
+    messageId: z.string().describe("Mail local ID (`id` from search results, preferred) or RFC Message-ID of the email"),
   },
   async ({ account, mailbox, messageId }) => {
     const result = await getMessageSource(account, mailbox, messageId);
@@ -317,7 +317,7 @@ server.tool(
   {
     account: z.string().describe("Mail account name"),
     mailbox: z.string().describe("Mailbox name"),
-    messageId: z.string().describe("RFC Message-ID of the email"),
+    messageId: z.string().describe("Mail local ID (`id` from search results, preferred) or RFC Message-ID of the email"),
   },
   async ({ account, mailbox, messageId }) => {
     const result = await listAttachments(account, mailbox, messageId);
@@ -334,7 +334,7 @@ server.tool(
   {
     account: z.string().describe("Mail account name"),
     mailbox: z.string().describe("Mailbox name"),
-    messageIds: z.array(z.string()).describe("RFC Message-IDs of the emails to color"),
+    messageIds: z.array(z.string()).describe("Mail local IDs (`id` from search results, preferred) or RFC Message-IDs of the emails to color"),
     color: z.enum(["blue", "gray", "green", "orange", "purple", "red", "yellow", "none"]).describe("Background color to apply, or 'none' to clear"),
   },
   async ({ account, mailbox, messageIds, color }) => {

@@ -1,7 +1,19 @@
 import { execFileSync } from "node:child_process";
-import { runAppleScript, runJXA, jsLiteral } from "./applescript-core.js";
+import { runAppleScript, runJXA, jsLiteral, escapeForAppleScript } from "./applescript-core.js";
 
 export * from "./applescript-core.js";
+
+/** Prefer the local `id` from search results: RFC IDs require loading every header. */
+export function messageIdFilter(messageId: string): string {
+  if (/^\d+$/.test(messageId)) {
+    const id = Number(messageId);
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      throw new Error("Mail message ID must be a positive safe integer");
+    }
+    return `id is ${id}`;
+  }
+  return `message id is "${escapeForAppleScript(messageId)}"`;
+}
 
 /**
  * Put an HTML string on the general pasteboard with the `public.html` flavor so

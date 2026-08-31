@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
+import { runAppleScript, messageIdFilter, escapeForAppleScript, parseRecords, withLaunch, FIELD_SEP, RECORD_SEP } from "../lib/applescript.js";
 
 export async function listAttachments(
   account: string,
@@ -7,11 +7,10 @@ export async function listAttachments(
 ) {
   const acct = escapeForAppleScript(account);
   const mbox = escapeForAppleScript(mailbox);
-  const msgId = escapeForAppleScript(messageId);
 
   const script = withLaunch("Mail", `
 tell application "Mail"
-  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${msgId}")
+  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose ${messageIdFilter(messageId)})
   if (count of msgs) is 0 then return "NOT_FOUND"
   set m to item 1 of msgs
   set output to ""
