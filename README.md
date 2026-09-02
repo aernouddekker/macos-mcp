@@ -311,6 +311,7 @@ After producing a branded reply, confirm both halves actually work:
 - Apps are auto-launched on first use and quit on server shutdown if they weren't running beforehand — see [App lifecycle](#app-lifecycle--leave-as-found)
 
 ### Mail
+- For Mail tools taking `messageId` or `messageIds`, prefer the numeric string `id` from `search-messages`. RFC `messageId` values remain supported, but comparing them loads message headers across the mailbox and can leave Mail busy even after the 30-second timeout. Local IDs are specific to this Mac's Mail library; search again after moving a message or rebuilding the library.
 - `content contains` searches in AppleScript can be slow on large mailboxes — Mail server searches subject and sender by default
 
 ### Numbers

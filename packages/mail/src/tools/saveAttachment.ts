@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
+import { runAppleScript, messageIdFilter, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -12,7 +12,6 @@ export async function saveAttachment(
 ) {
   const acct = escapeForAppleScript(account);
   const mbox = escapeForAppleScript(mailbox);
-  const msgId = escapeForAppleScript(messageId);
   const dir = savePath ?? path.join(os.homedir(), "Downloads");
   fs.mkdirSync(dir, { recursive: true });
   const escapedDir = escapeForAppleScript(dir);
@@ -41,7 +40,7 @@ export async function saveAttachment(
 
   const script = withLaunch("Mail", `
 tell application "Mail"
-  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${msgId}")
+  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose ${messageIdFilter(messageId)})
   if (count of msgs) is 0 then
     return "NOT_FOUND"
   end if

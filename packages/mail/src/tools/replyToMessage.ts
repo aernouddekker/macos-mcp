@@ -1,5 +1,6 @@
 import {
   runAppleScript,
+  messageIdFilter,
   escapeForAppleScript,
   withLaunch,
   setHtmlClipboard,
@@ -30,7 +31,6 @@ export async function replyToMessage(
 
   const acct = escapeForAppleScript(account);
   const mbox = escapeForAppleScript(mailbox);
-  const msgId = escapeForAppleScript(messageId);
   const content = escapeForAppleScript(body);
 
   const replyParams = replyAll
@@ -108,7 +108,7 @@ end tell`;
   // audience captured before `reply` was called.
   const script = withLaunch("Mail", `
 tell application "Mail"
-  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${msgId}")
+  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose ${messageIdFilter(messageId)})
   if (count of msgs) is 0 then
     return "NOT_FOUND"
   end if
@@ -207,7 +207,6 @@ async function replyHtmlMessage(
 ) {
   const acct = escapeForAppleScript(account);
   const mbox = escapeForAppleScript(mailbox);
-  const msgId = escapeForAppleScript(messageId);
 
   const replyParams = replyAll
     ? "with opening window, reply to all"
@@ -243,7 +242,7 @@ async function replyHtmlMessage(
   // See replyToMessage above for the sent-by-me detection rationale.
   const script = withLaunch("Mail", `
 tell application "Mail"
-  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${msgId}")
+  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose ${messageIdFilter(messageId)})
   if (count of msgs) is 0 then
     return "NOT_FOUND"
   end if

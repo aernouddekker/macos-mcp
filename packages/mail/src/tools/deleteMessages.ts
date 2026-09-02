@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
+import { runAppleScript, messageIdFilter, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function deleteMessages(
   account: string,
@@ -10,10 +10,9 @@ export async function deleteMessages(
 
   let deletedCount = 0;
   for (const msgId of messageIds) {
-    const id = escapeForAppleScript(msgId);
     const script = withLaunch("Mail", `
 tell application "Mail"
-  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${id}")
+  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose ${messageIdFilter(msgId)})
   if (count of msgs) > 0 then
     delete item 1 of msgs
     return "deleted"

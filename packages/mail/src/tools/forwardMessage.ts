@@ -1,4 +1,4 @@
-import { runAppleScript, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
+import { runAppleScript, messageIdFilter, escapeForAppleScript, withLaunch } from "../lib/applescript.js";
 
 export async function forwardMessage(
   account: string,
@@ -10,7 +10,6 @@ export async function forwardMessage(
 ) {
   const acct = escapeForAppleScript(account);
   const mbox = escapeForAppleScript(mailbox);
-  const msgId = escapeForAppleScript(messageId);
 
   const recipientLines = to
     .map((addr) => {
@@ -62,7 +61,7 @@ if pasteErr is not missing value then error pasteErr
 
   const script = withLaunch("Mail", `
 tell application "Mail"
-  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose message id is "${msgId}")
+  set msgs to (messages of mailbox "${mbox}" of account "${acct}" whose ${messageIdFilter(messageId)})
   if (count of msgs) is 0 then
     return "NOT_FOUND"
   end if
